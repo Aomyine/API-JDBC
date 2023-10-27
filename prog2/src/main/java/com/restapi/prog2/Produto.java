@@ -2,25 +2,25 @@ package com.restapi.prog2;
 
 public class Produto {
 
-    private int id;
+    private int idProduto;
     private String descricao;
     private String marca;
     private Double preco;
 
     public Produto(int i, String d, String m, Double p){
-        this.id = i;
+        this.idProduto = i;
         this.descricao = d;
         this.marca = m;
         this.preco = p;
     }
 
 
-    public int getId() {
-        return id;
+    public int getIdProduto() {
+        return idProduto;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIdProduto(int idProduto) {
+        this.idProduto = idProduto;
     }
 
     public String getDescricao() {
