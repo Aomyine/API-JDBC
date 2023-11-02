@@ -5,12 +5,16 @@ public class Funcionario {
     private String nome;
     private String cargo;
     private Double salario;
+    private Cidade Cidade;
+    private ContaBancaria conta;
 
-    public Funcionario(int i, String n, String c, Double s){
+    public Funcionario(int i, String n, String c, Double s, Cidade ci, ContaBancaria co){
         this.id = i;
         this.nome = n;
         this.cargo = c;
-        this.salario =s;
+        this.salario = s;
+        this.Cidade = ci;
+        this.conta = co;
     }
 
     public int getId() {
@@ -49,6 +53,22 @@ public class Funcionario {
 
     public void setSalario(Double salario) {
         this.salario = salario;
+    }
+
+    public Cidade getCidade() {
+        return Cidade;
+    }
+
+    public void setCidade(Cidade Cidade) {
+        this.Cidade = Cidade;
+    }
+
+    public ContaBancaria getConta() {
+        return conta;
+    }
+
+    public void setConta(ContaBancaria conta) {
+        this.conta = conta;
     }
 
 }
