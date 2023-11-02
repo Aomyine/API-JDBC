@@ -2,15 +2,15 @@ package com.restapi.prog2;
 
 public class Cidade {
 
-    private int id;
-    private String nome;
+    private int idCidade;
+    private String nomeCidade;
     private String estado;
     private String pais;
     private int populacao;
 
     public Cidade (int i, String n, String e, String pa, int po){
-        this.id = i;
-        this.nome = n;
+        this.idCidade = i;
+        this.nomeCidade = n;
         this.estado = e;
         this.pais = pa;
         this.populacao = po;
@@ -18,23 +18,23 @@ public class Cidade {
     
 
 
-    public int getId() {
-        return id;
+    public int getIdCidade() {
+        return idCidade;
     }
 
    
-    public void setId(int id) {
-        this.id = id;
+    public void setIdCidade(int idCidade) {
+        this.idCidade = idCidade;
     }
 
 
-    public String getNome() {
-        return nome;
+    public String getNomeCidade() {
+        return nomeCidade;
     }
 
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setNomeCidade(String nomeCidade) {
+        this.nomeCidade = nomeCidade;
     }
 
 
