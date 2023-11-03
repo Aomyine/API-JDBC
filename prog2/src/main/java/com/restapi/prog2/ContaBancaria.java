@@ -1,25 +1,25 @@
 package com.restapi.prog2;
 
 public class ContaBancaria {
-    private int id;
+    private int idTitular;
     private String nomeTitular;
     private Double saldo;
     private int agencia;
 
     public ContaBancaria(int i, String n, Double s, int a){
-        this.id = i;
+        this.idTitular = i;
         this.nomeTitular = n;
         this.saldo = s;
         this.agencia = a;
     }
 
 
-    public int getId() {
-        return id;
+    public int getIdTitular() {
+        return idTitular;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIdTitular(int idTitular) {
+        this.idTitular = idTitular;
     }
 
 
