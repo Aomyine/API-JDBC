@@ -1,7 +1,10 @@
-package com.restapi.prog2;
+package com.restapi.prog2.controllers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import com.restapi.prog2.classes.Cidade;
+
+
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

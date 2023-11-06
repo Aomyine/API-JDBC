@@ -1,4 +1,4 @@
-package com.restapi.prog2;
+package com.restapi.prog2.classes;
 
 public class ContaBancaria {
     private int idTitular;
