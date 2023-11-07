@@ -2,7 +2,7 @@ package com.restapi.prog2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import com.restapi.prog2.classes.Cidade;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
