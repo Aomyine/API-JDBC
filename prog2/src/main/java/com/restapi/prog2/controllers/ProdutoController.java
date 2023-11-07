@@ -1,64 +1,48 @@
 package com.restapi.prog2.controllers;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import com.restapi.prog2.classes.Produto;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.restapi.prog2.repositorios.ProdutoRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class ProdutoController {
 
-    private List<Produto> produtos;
-
-    public ProdutoController() {
-        this.produtos = new ArrayList<>();
-    }
+    @Autowired
+    private ProdutoRepo produtoRepo;
 
     @GetMapping("/api/Produtos")
-    Iterable<Produto> getProdutos() {
-        return this.produtos;
+    public Iterable<Produto> getProdutos() {
+        return produtoRepo.findAll();
     }
 
     @GetMapping("/api/Produtos/{id}")
-    Optional<Produto> getProduto(@PathVariable int id) {
-        return this.produtos.stream()
-            .filter(p -> p.getIdProduto() == id)
-            .findFirst();
+    public Optional<Produto> getProduto(@PathVariable int id) {
+        return produtoRepo.findById(id);
     }
 
     @PostMapping("/api/Produtos")
-    Produto createProduto(@RequestBody Produto produto) {
-        int maxId = this.produtos.stream()
-            .map(Produto::getIdProduto)
-            .max(Integer::compare)
-            .orElse(0);
-        produto.setIdProduto(maxId + 1);
-        this.produtos.add(produto);
-        return produto;
+    public Produto createProduto(@RequestBody Produto produto) {
+        Produto createdProduto = produtoRepo.save(produto);
+        return createdProduto;
     }
 
     @PutMapping("/api/Produtos/{ProdutoId}")
-    Optional<Produto> updateProduto(@RequestBody Produto ProdutoRequest, @PathVariable int ProdutoId) {
-        Optional<Produto> opt = getProduto(ProdutoId);
+    public int updateProduto(@RequestBody Produto produtoRequest, @PathVariable int ProdutoId) {
+        Optional<Produto> opt = produtoRepo.findById(ProdutoId);
         if (opt.isPresent()) {
-            Produto produto = opt.get();
-            produto.setDescricao(ProdutoRequest.getDescricao());
-            produto.setMarca(ProdutoRequest.getMarca());
-            produto.setPreco(ProdutoRequest.getPreco());
+            if (produtoRequest.getIdProduto() == ProdutoId) {
+                produtoRepo.save(produtoRequest);
+                return ProdutoId;
+            }
         }
-
-        return opt;
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados do produto com id " + ProdutoId);
     }
 
-    @DeleteMapping(value = "/api/Produtos/{id}")
-    void deleteProduto(@PathVariable int id) {
-        this.produtos.removeIf(p -> p.getIdProduto() == id);
+    @DeleteMapping("/api/Produtos/{id}")
+    public void deleteProduto(@PathVariable int id) {
+        produtoRepo.deleteById(id);
     }
 }

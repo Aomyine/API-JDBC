@@ -1,19 +1,30 @@
-package com.restapi.prog2;
+package com.restapi.prog2.classes;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "produtos")
 public class Produto {
-
+    @Id
+    @GeneratedValue
     private int idProduto;
     private String descricao;
     private String marca;
     private Double preco;
 
-    public Produto(int i, String d, String m, Double p){
-        this.idProduto = i;
-        this.descricao = d;
-        this.marca = m;
-        this.preco = p;
+    public Produto() {
+        // Construtor vazio necessário para JPA
     }
 
+    public Produto(int idProduto, String descricao, String marca, Double preco) {
+        this.idProduto = idProduto;
+        this.descricao = descricao;
+        this.marca = marca;
+        this.preco = preco;
+    }
 
     public int getIdProduto() {
         return idProduto;
@@ -26,7 +37,6 @@ public class Produto {
     public String getDescricao() {
         return descricao;
     }
-
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
@@ -47,5 +57,4 @@ public class Produto {
     public void setPreco(Double preco) {
         this.preco = preco;
     }
-
 }

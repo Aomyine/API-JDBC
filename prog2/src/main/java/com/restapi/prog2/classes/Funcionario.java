@@ -1,26 +1,43 @@
-package com.restapi.prog2;
+package com.restapi.prog2.classes;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "funcionarios")
 public class Funcionario {
+    @Id
+    @GeneratedValue
     private int id;
     private String nome;
     private String cargo;
     private Double salario;
+
+    @ManyToOne
     private Cidade cidade;
+
+    @ManyToOne
     private ContaBancaria conta;
 
-    public Funcionario(int i, String n, String c, Double s, Cidade ci, ContaBancaria co){
-        this.id = i;
-        this.nome = n;
-        this.cargo = c;
-        this.salario = s;
-        this.cidade = ci;
-        this.conta = co;
+    public Funcionario() {
+        // Construtor vazio necessário para JPA
+    }
+
+    public Funcionario(int id, String nome, String cargo, Double salario, Cidade cidade, ContaBancaria conta) {
+        this.id = id;
+        this.nome = nome;
+        this.cargo = cargo;
+        this.salario = salario;
+        this.cidade = cidade;
+        this.conta = conta;
     }
 
     public int getId() {
         return id;
     }
-
 
     public void setId(int id) {
         this.id = id;
@@ -30,26 +47,21 @@ public class Funcionario {
         return nome;
     }
 
-
     public void setNome(String nome) {
         this.nome = nome;
     }
-
 
     public String getCargo() {
         return cargo;
     }
 
-
     public void setCargo(String cargo) {
         this.cargo = cargo;
     }
 
-
     public Double getSalario() {
         return salario;
     }
-
 
     public void setSalario(Double salario) {
         this.salario = salario;
@@ -70,5 +82,4 @@ public class Funcionario {
     public void setConta(ContaBancaria conta) {
         this.conta = conta;
     }
-
 }
