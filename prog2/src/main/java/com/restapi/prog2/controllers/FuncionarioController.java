@@ -1,67 +1,48 @@
 package com.restapi.prog2.controllers;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.*;
 import com.restapi.prog2.classes.Funcionario;
+import com.restapi.prog2.repositorios.FuncionarioRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class FuncionarioController {
 
-    private List<Funcionario> Funcionarios;
-
-    public FuncionarioController() {
-        this.Funcionarios = new ArrayList<>();
-    }
+    @Autowired
+    private FuncionarioRepo funcionarioRepo;
 
     @GetMapping("/api/Funcionarios")
-    Iterable<Funcionario> getFuncionarios() {
-        return this.Funcionarios;
+    public Iterable<Funcionario> getFuncionarios() {
+        return funcionarioRepo.findAll();
     }
 
     @GetMapping("/api/Funcionarios/{id}")
-    Optional<Funcionario> getFuncionario(@PathVariable int id) {
-        return this.Funcionarios.stream()
-            .filter(f -> f.getId() == id)
-            .findFirst();
+    public Optional<Funcionario> getFuncionario(@PathVariable int id) {
+        return funcionarioRepo.findById(id);
     }
 
     @PostMapping("/api/Funcionarios")
-    Funcionario createFuncionario(@RequestBody Funcionario f) {
-        int maxId = this.Funcionarios.stream()
-            .map(Funcionario::getId)
-            .max(Integer::compare)
-            .orElse(0);
-        f.setId(maxId + 1);
-        this.Funcionarios.add(f);
-        return f;
+    public Funcionario createFuncionario(@RequestBody Funcionario funcionario) {
+        Funcionario createdFuncionario = funcionarioRepo.save(funcionario);
+        return createdFuncionario;
     }
 
     @PutMapping("/api/Funcionarios/{FuncionarioId}")
-    Optional<Funcionario> updateFuncionario(@RequestBody Funcionario FuncionarioRequest, @PathVariable int FuncionarioId) {
-        Optional<Funcionario> opt = getFuncionario(FuncionarioId);
+    public int updateFuncionario(@RequestBody Funcionario funcionarioRequest, @PathVariable int FuncionarioId) {
+        Optional<Funcionario> opt = funcionarioRepo.findById(FuncionarioId);
         if (opt.isPresent()) {
-            Funcionario funcionario = opt.get();
-            funcionario.setNome(FuncionarioRequest.getNome());
-            funcionario.setCargo(FuncionarioRequest.getCargo());
-            funcionario.setSalario(FuncionarioRequest.getSalario());
-            funcionario.setCidade(FuncionarioRequest.getCidade());
-            funcionario.setConta(FuncionarioRequest.getConta());
+            if (funcionarioRequest.getId() == FuncionarioId) {
+                funcionarioRepo.save(funcionarioRequest);
+                return FuncionarioId;
+            }
         }
-
-        return opt;
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados do funcionário com id " + FuncionarioId);
     }
 
-    @DeleteMapping(value = "/api/Funcionarios/{id}")
-    void deleteFuncionario(@PathVariable int id) {
-        this.Funcionarios.removeIf(f -> f.getId() == id);
+    @DeleteMapping("/api/Funcionarios/{id}")
+    public void deleteFuncionario(@PathVariable int id) {
+        funcionarioRepo.deleteById(id);
     }
 }

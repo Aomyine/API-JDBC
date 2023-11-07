@@ -1,70 +1,49 @@
 package com.restapi.prog2.controllers;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import com.restapi.prog2.classes.ContaBancaria;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.restapi.prog2.repositorios.ContaBancariaRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 
 @RestController
-
 public class ContaBancariaController {
-      
-	private List<ContaBancaria> Contas;
 
-	public ContaBancariaController() {
-		this.Contas = new ArrayList<>();
-	}
+    @Autowired
+    private ContaBancariaRepo contaBancariaRepo;
 
-	@GetMapping("/api/Contas")
-	Iterable<ContaBancaria> getContas() {
-		return this.Contas;
-	}
-	
-	@GetMapping("/api/Contas/{id}")
-	Optional<ContaBancaria> getConta(@PathVariable long id) {
-		for (ContaBancaria p: Contas) {
-			if (p.getIdTitular() == id) {
-				return Optional.of(p);
-			}
-		}
-		return Optional.empty();
-	}
-	
-	@PostMapping("/api/Contas")
-	ContaBancaria createConta(@RequestBody ContaBancaria p) {
-		int maxId = 1;
-		for (ContaBancaria contaTitular : Contas) {
-			if (contaTitular.getIdTitular() > maxId) {
-				maxId = contaTitular.getIdTitular();
-			}
-		}
-		p.setIdTitular(maxId+1);
-		Contas.add(p);
-		return p;
-	}
-	
-	@PutMapping("/api/Contas/{TitularId}")
-	Optional<ContaBancaria> updateContaBancaria(@RequestBody ContaBancaria ContaRequest, @PathVariable int TitularId) {
-		Optional<ContaBancaria> opt = this.getConta(TitularId);
-		if (opt.isPresent()) {
-			ContaBancaria Conta = opt.get();
-			Conta.setNomeTitular(ContaRequest.getNomeTitular());
-			Conta.setAgencia(ContaRequest.getAgencia());
-			Conta.setSaldo(ContaRequest.getSaldo());
-			Conta.setIdTitular(ContaRequest.getIdTitular());
-		}
+    @GetMapping("/api/Contas")
+    public Iterable<ContaBancaria> getContas() {
+        return contaBancariaRepo.findAll();
+    }
 
-		return opt;				
-	}	
-	
-	@DeleteMapping(value = "/api/Contas/{id}")
-	void deleteCidade(@PathVariable int id) {
-		Contas.removeIf(p -> p.getIdTitular() == id);
-	}		
+    @GetMapping("/api/Contas/{id}")
+    public Optional<ContaBancaria> getConta(@PathVariable int id) {
+        return contaBancariaRepo.findById(id);
+    }
+
+    @PostMapping("/api/Contas")
+    public ContaBancaria createConta(@RequestBody ContaBancaria contaBancaria) {
+        ContaBancaria createdConta = contaBancariaRepo.save(contaBancaria);
+        return createdConta;
+    }
+
+    @PutMapping("/api/Contas/{TitularId}")
+    public int updateContaBancaria(@RequestBody ContaBancaria contaRequest, @PathVariable int TitularId) {
+        Optional<ContaBancaria> opt = contaBancariaRepo.findById(TitularId);
+        if (opt.isPresent()) {
+            if (contaRequest.getIdTitular() == TitularId) {
+                contaBancariaRepo.save(contaRequest);
+                return TitularId;
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados da conta com id " + TitularId);
+    }
+
+    @DeleteMapping("/api/Contas/{id}")
+    public void deleteConta(@PathVariable int id) {
+        contaBancariaRepo.deleteById(id);
+    }
 }
