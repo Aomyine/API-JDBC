@@ -1,0 +1,145 @@
+/* CONFIG GERAL */
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #07070A;
+}
+
+h1, h2, h3, p, a, li {
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: white;
+}
+
+a{
+    text-decoration: none;
+    font-size: 140%;
+}
+/* HEADER */
+#logo-container {
+    width: 15%; 
+}
+
+#logo {
+    width: 100%; 
+    height: 80%; 
+    margin-left: 10%;
+}
+
+#links_header{
+    width: 100%;
+    display: flex;
+    justify-content: left;
+    gap: 10%;
+    margin-left: 5%;
+}
+
+#login {
+    margin-right: 2%;
+    font-size: 140%;
+}
+
+#login:hover {
+    color: #004BA8;
+}
+
+#div_header{
+    display: flex;
+    justify-content: space-between;
+}
+header {
+    background-color: #07070A;
+    border-bottom: solid white 3px;
+    width: 100%;
+    height: 15%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* CONFIG SECTION */
+#func{
+    color: #004BA8;
+}
+
+#pesquisa {
+    /* max-width: 300px; */
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin: 10px auto;
+    margin-left: 10px;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+#pesquisa input {
+    flex: 1;
+    width: 250%;
+    height: 55%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    padding-left: 10px;
+}
+
+section{
+    height: 60%;
+}
+
+#pesquisa_campos{
+    display: flex;
+    flex-direction: row;
+    width: 1000px;
+    gap: 1px;
+}
+
+/* Estilo para o botão dentro do formulário */
+#pesquisa button {
+    background-color: gray;
+    margin-left: 20px;
+    margin-bottom: 27px;
+    color: #ffffff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#pesquisa_campos button:hover {
+    background-color: #004BA8; /* Cor de fundo alterada ao passar o mouse */
+}
+
+/* FOOTER */
+footer {
+    border-top: solid white 3px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#nomes_footer {
+    font-size: 130%;
+    margin-left: 10%;
+    list-style: none;
+    line-height: 38px;
+}
+
+/* Estilo para o novo ul */
+#links_footer {
+    font-size: 130%;
+    margin-right: 15%;
+    list-style: none;
+    line-height: 38px;
+    display: flex;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilo para os links no novo ul */
+#links_footer a {
+    text-decoration: none;
+    color: white;
+    margin: 0 15px;
+}
