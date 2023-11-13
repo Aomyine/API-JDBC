@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador Funcionários</title>
+    <link rel="stylesheet" href="gerenciadorFuncionario.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,700;1,100&family=Oswald:wght@200&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div id="logo-container">
+            <a href="index.html">
+                <img id="logo" src="/images/Screen Shot 2023-11-07 at 19.54.14.png" alt="logotipo">
+            </a>
+        </div>
+
+        <div id="links_header">
+            <a href="gerenciadorFuncionario.html" id="func">Funcionários</a>
+            <a href="gerenciadorProduto.html" id="prod">Produtos</a>
+        </div>
+
+        <a href="login_page.html" id="login">Login</a>
+    </header>
+
+    <section>
+
+        <div id="pesquisa_campos">
+            <form id="pesquisa">
+                <!-- <label for="nome"></label> -->
+                <input type="text" id="nome" name="nome" placeholder="Digite o nome">
+
+                <!-- <label for="id"></label> -->
+                <input type="text" id="id" name="nome" placeholder="Digite o ID">
+
+                <a href=""><button id="botao_pesquisar">Pesquisar</button></a>
+            </form>
+        </div>
+
+        
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // URL da sua API de funcionários
+                const apiUrl = "http://localhost:8080/api/Funcionarios"; // Ajuste a URL conforme necessário
+        
+                // Elemento onde os funcionários serão exibidos
+                const funcionariosSection = document.getElementById("funcionarios-section");
+        
+                // Realiza a requisição à API
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Para cada funcionário na resposta da API, cria uma div e adiciona ao DOM
+                        data.forEach(funcionario => {
+                            const divFuncionario = document.createElement("div");
+                            divFuncionario.classList.add("funcionario");
+        
+                            // Aqui você pode adicionar os dados específicos do funcionário à div
+                            divFuncionario.innerHTML = `<h3>${funcionario.nome}</h3><p>${funcionario.cargo}</p>`;
+        
+                            funcionariosSection.appendChild(divFuncionario);
+                        });
+                    })
+                    .catch(error => console.error("Erro ao obter dados:", error));
+            });
+        </script>
+        
+        
+    </section>
+
+    <footer>
+        <ul id="nomes_footer">
+            <li>Giovanna Feitosa Nogueira</li>
+            <li>Kaique Moraes</li>
+            <li>Luis Felipe Spielmann Lopes</li>
+            <li>Marcos dos Santos Silva</li>
+        </ul>
+
+        <ul id="links_footer">
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Mudar Idioma</a></li>
+            <li><a href="#">Contate-nos</a></li>
+        </ul>
+
+    </footer>
+</body>
+</html>

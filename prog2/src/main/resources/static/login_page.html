@@ -6,30 +6,29 @@
     <title>Página única</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,700;1,100&family=Oswald:wght@200&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,700;1,100&family=Oswald:wght@200&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-
         <div id="logo-container">
             <a href="index.html">
                 <img id="logo" src="/images/Screen Shot 2023-11-07 at 19.54.14.png" alt="logotipo">
             </a>
         </div>
-        
-        <a href="login_page.html" id="login">Login</a>
     </header>
 
     <section>
-        <h1>GERENCIADOR DA EMPRESA</h1>
-        <div class="div_texto">
-            <h2>Seu gerenciador de empresa simplificado.
-            </h2>
-            <h2>Tudo em um só lugar.</h2>
-        </div>
+        
+        <form id="login-form">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <br>
+            <label for="password">Senha:</label>
+            <input type="password" id="password" name="password" required>
+        </form>
 
-        <button><a href="login_page.html">Fazer Login</a></button>
+        <button><a href="gerenciadorFuncionario.html">Fazer Login</a></button>
         <div class="div_texto">
             <h3>Não tem login?<a href=""> Pedir acesso</a></h3>
         </div>
@@ -48,7 +47,6 @@
             <li><a href="#">Mudar Idioma</a></li>
             <li><a href="#">Contate-nos</a></li>
         </ul>
-
     </footer>
 </body>
 </html>
