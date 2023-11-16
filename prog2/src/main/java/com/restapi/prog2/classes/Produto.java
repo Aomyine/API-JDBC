@@ -1,15 +1,10 @@
 package com.restapi.prog2.classes;
 
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "produtos")
@@ -21,10 +16,6 @@ public class Produto {
     private String marca;
     private Double preco;
     
-    @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "funcionario_id")
-    private Funcionario funcionario;
 
     public Produto() {
         // Construtor vazio necessário para JPA
@@ -68,14 +59,5 @@ public class Produto {
     public void setPreco(Double preco) {
         this.preco = preco;
     }
-
-    public Funcionario getFuncionario() {
-        return funcionario;
-    }
-
-    public void setFuncionario(Funcionario funcionario) {
-        this.funcionario = funcionario;
-    }
-
 
 }
