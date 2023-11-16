@@ -20,11 +20,8 @@
         </div>
 
         <div id="links_header">
-            <a href="gerenciadorFuncionario.html" id="func">Funcionários</a>
-            <a href="gerenciadorProduto.html" id="prod">Produtos</a>
+            <h1> Funcionários </h1> 
         </div>
-
-        <a href="login_page.html" id="login">Login</a>
     </header>
 
     <section>
@@ -33,7 +30,7 @@
                 <input type="text" id="nome" name="nome" placeholder="Digite o nome">
                 <input type="text" id="id" name="id" placeholder="Digite o ID">
                 <button id="botao_pesquisar" type="button" onclick="pesquisarFuncionarios()">Pesquisar</button>
-                <button id="botao_cadastrar" type="button" onclick="abrirModal()">Cadastrar</button>
+                <button id="botao_cadastrar" type="button" onclick="abrirModal(true)">Cadastrar</button>
             </form>
         </div>
 
@@ -128,19 +125,27 @@
 
     <script defer>
         let dataFuncionarios = [];
+        let isEditMode = false;
+
         function pesquisarFuncionarios() {
             const nome = document.getElementById("nome").value.toLowerCase();
             const id = document.getElementById("id").value.toLowerCase();
 
             const funcionariosFiltrados = dataFuncionarios.filter(funcionario => {
+                if (!funcionario.nome) {
+                    // Ignorar funcionários sem nome
+                    return false;
+                }
+
                 const nomeFuncionario = funcionario.nome.toLowerCase();
                 const idFuncionario = funcionario.id.toString().toLowerCase();
 
-                return nomeFuncionario.indexOf(nome) !== -1 && idFuncionario.indexOf(id) !== -1;
+                return nomeFuncionario.includes(nome) && idFuncionario.includes(id);
             });
 
             renderFuncionarios(funcionariosFiltrados);
         }
+
         async function fetchDataFuncionarios() {
             try {
                 const response = await fetch('/api/Funcionarios');
@@ -231,6 +236,7 @@
 
         async function abrirModalDetalhes(id) {
             console.log("modal detalhes chamado");
+
             try {
                 // Obter dados do funcionário
                 const response = await fetch(`/api/Funcionarios/${id}`);
@@ -238,56 +244,38 @@
                     console.error("Funcionário não encontrado");
                     return;
                 }
+                const funcionario = await response.json();
 
-                const data = await response.json();
-                const funcionario = data.id;
-                // const contaId = funcionario.conta ? funcionario.conta.id : null;
-                // const cidadeId = funcionario.cidade ? funcionario.cidade.id : null;
-                // const produtoId = funcionario.produto ? funcionario.produto.id : null;
+                // Obter dados da conta associada
+                const conta = await fetchDataContaPorId(funcionario.contaId);
 
-                // Obter detalhes de conta, cidade e produto
-                // const [conta, cidade, produto] = await Promise.all([
-                //     contaId ? fetchDataContaPorId(contaId) : null,
-                //     cidadeId ? fetchDataCidadePorId(cidadeId) : null,
-                //     produtoId ? fetchDataProdutoPorId(produtoId) : null
-                // ]);
+                // Obter dados da cidade associada
+                const cidade = await fetchDataCidadePorId(funcionario.cidadeId);
+
+                // Obter dados do produto associado
+                const produto = await fetchDataProdutoPorId(funcionario.produtoId);
 
                 // Abre o modal de detalhes
-                abrirModal();
+                abrirModal(false);
 
-                // Preenche os campos do modal com as informações do funcionário
+                // Preenche os campos do modal com as informações
                 document.getElementById("nomeFuncionario").value = funcionario.nome;
                 document.getElementById("cargoFuncionario").value = funcionario.cargo;
                 document.getElementById("salarioFuncionario").value = funcionario.salario;
 
-                // // Preenche os campos específicos de conta bancária, cidade e produto
-                // if (conta) {
-                //     document.getElementById("nomeTitular").value = conta.nomeTitular;
-                //     document.getElementById("saldo").value = conta.saldo;
-                //     document.getElementById("agencia").value = conta.agencia;
-                // }
+                document.getElementById("nomeTitular").value = conta.nomeTitular;
+                document.getElementById("saldo").value = conta.saldo;
+                document.getElementById("agencia").value = conta.agencia;
 
-                // if (cidade) {
-                //     document.getElementById("cidade").value = cidade.nome;
-                //     document.getElementById("estado").value = cidade.estado;
-                //     document.getElementById("pais").value = cidade.pais;
-                //     document.getElementById("populacao").value = cidade.populacao;
-                // }
+                document.getElementById("cidade").value = cidade.nomeCidade;
+                document.getElementById("estado").value = cidade.estado;
+                document.getElementById("pais").value = cidade.pais;
+                document.getElementById("populacao").value = cidade.populacao;
 
-                // if (produto) {
-                //     document.getElementById("descricaoProduto").value = produto.descricaoProduto;
-                //     document.getElementById("marca").value = produto.marca;
-                //     document.getElementById("preco").value = produto.preco;
-                // }
+                document.getElementById("descricaoProduto").value = produto.descricaoProduto;
+                document.getElementById("marca").value = produto.marca;
+                document.getElementById("preco").value = produto.preco;
 
-                // Desabilite os campos para evitar edição
-                console.log("desabilitei")
-                const inputs = document.querySelectorAll("#modalCadastroProduto input");
-                inputs.forEach(input => (input.disabled = true));
-
-                // Remova o botão de salvar
-                const botaoSalvar = document.getElementById("botao_salvar");
-                botaoSalvar.style.display = "none";
             } catch (error) {
                 console.error("Erro ao obter detalhes do funcionário:", error);
             }
@@ -340,167 +328,158 @@ async function fetchDataProdutoPorId(produtoId) {
         return null;
     }
 }
-        function fecharModal() {
-            const modalCadastroProduto = document.getElementById("modalCadastroProduto");
-            modalCadastroProduto.style.display = "none";
-            document.body.classList.remove("modal-open");
+            function fecharModal() {
+                const modalCadastroProduto = document.getElementById("modalCadastroProduto");
+                modalCadastroProduto.style.display = "none";
+                document.body.classList.remove("modal-open");
 
-            const inputs = document.querySelectorAll("#modalCadastroProduto input");
-            inputs.forEach(input => (input.value = ""));
+                const inputs = document.querySelectorAll("#modalCadastroProduto input");
+                inputs.forEach(input => (input.value = ""));
 
-        }
+            }
 
-        function abrirModal(){
-            const modalCadastroProduto = document.getElementById("modalCadastroProduto");
-    
-            // Adiciona verificação para abrir o modal apenas se não estiver visível
-            if (modalCadastroProduto.style.display !== "block") {
-                modalCadastroProduto.style.display = "block";
-                document.body.classList.add("modal-open");
-    }
-            fetchDataFuncionarios();
-            fetchDataConta();
-            fetchDataCidade();
-            fetchDataProduto();
-        }
+            function abrirModal(isEditMode) {
+                const modalCadastroProduto = document.getElementById("modalCadastroProduto");
 
-        function salvarInfos() {
-            const nomeFuncionario = document.getElementById("nomeFuncionario").value;
-            const cargoFuncionario = document.getElementById("cargoFuncionario").value;
-            const salarioFuncionario = parseFloat(document.getElementById("salarioFuncionario").value);
+                // Adiciona verificação para abrir o modal apenas se não estiver visível
+                if (modalCadastroProduto.style.display !== "block") {
+                    modalCadastroProduto.style.display = "block";
+                    document.body.classList.add("modal-open");
+                }
 
-            const nomeTitular = document.getElementById("nomeTitular").value;
-            const saldo = parseFloat(document.getElementById("saldo").value);
-            const agencia = parseInt(document.getElementById("agencia").value);
+                // Se estiver em modo de visualização, desabilita os campos e esconde o botão de salvar
+                if (!isEditMode) {
+                    const inputs = document.querySelectorAll("#modalCadastroProduto input");
+                    inputs.forEach(input => (input.disabled = true));
 
-            const cidade = document.getElementById("cidade").value;
-            const estado = document.getElementById("estado").value;
-            const pais = document.getElementById("pais").value;
-            const populacao = parseFloat(document.getElementById("populacao").value);
+                    const botaoSalvar = document.getElementById("botao_salvar");
+                    botaoSalvar.style.display = "none";
+                } else {
+                    // Se estiver em modo de edição, habilita os campos e mostra o botão de salvar
+                    const inputs = document.querySelectorAll("#modalCadastroProduto input");
+                    inputs.forEach(input => (input.disabled = false));
 
-            const descricaoProduto = document.getElementById("descricaoProduto").value;
-            const marca = document.getElementById("marca").value;
-            const preco = parseFloat(document.getElementById("preco").value);
+                    // Show the save button
+                    const botaoSalvar = document.getElementById("botao_salvar");
+                    botaoSalvar.style.display = "block";
+                }
 
-            const postPromises = [
+                // Limpa os campos do modal apenas se estiver no modo de cadastro
+                if (!isEditMode) {
+                    const inputs = document.querySelectorAll("#modalCadastroProduto input");
+                    inputs.forEach(input => (input.value = ""));
+                }
 
-                fetch('/api/Contas', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        nomeTitular: nomeTitular,
-                        saldo: saldo,
-                        agencia: agencia,
-                    }),
-                }),
-
-                fetch('/api/Cidades', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        nomeCidade: cidade,
-                        estado: estado,
-                        pais: pais,
-                        populacao: populacao,
-                    }),
-                }),
-
-                fetch('/api/Produtos', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        descricaoProduto: descricaoProduto,
-                        marca: marca,
-                        preco: preco,
-                    }),
-                }),
-
-                fetch('/api/Funcionarios', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        nome: nomeFuncionario,
-                        cargo: cargoFuncionario,
-                        salario: salarioFuncionario,
-                    }),
-                }),
-            ];
-
-            Promise.all(postPromises)
-            .then(responses => {
-                // Supondo que as respostas tenham uma propriedade 'id'
-                const contaId = responses[0].idConta;
-
-                const cidadeId = responses[1].idCidade;
-                const produtoId = responses[2].idProduto;
-   
-                const funcionarioId = responses[3].id;
-
-                const updatePromises = [
-                    fetch(`/api/Contas/${contaId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            funcionarioId: funcionarioId,
-                        }),
-                    }),
-
-                    fetch(`/api/Cidades/${cidadeId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            funcionarioId: funcionarioId,
-                        }),
-                    }),
-
-                    fetch(`/api/Produtos/${produtoId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            funcionarioId: funcionarioId,
-                        }),
-                    }),
-
-                    fetch(`/api/Funcionarios/${funcionarioId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            contaId: contaId,
-                            cidadeId: cidadeId,
-                            produtoId: produtoId,
-                        }),
-                    }),
-                ];
-
-                return Promise.all(updatePromises);
-            })
-            .then(() => {
-                console.log('Todas as APIs foram atualizadas com sucesso.');
-                fecharModal();
                 fetchDataFuncionarios();
                 fetchDataConta();
                 fetchDataCidade();
                 fetchDataProduto();
-            })
-            .catch(error => console.error('Erro ao realizar as requisições POST:', error));
-                }
-                
+            }
+
+            function salvarInfos() {
+                const nomeFuncionario = document.getElementById("nomeFuncionario").value;
+                const cargoFuncionario = document.getElementById("cargoFuncionario").value;
+                const salarioFuncionario = parseFloat(document.getElementById("salarioFuncionario").value);
+
+                const nomeTitular = document.getElementById("nomeTitular").value;
+                const saldo = parseFloat(document.getElementById("saldo").value);
+                const agencia = parseInt(document.getElementById("agencia").value);
+
+                const cidade = document.getElementById("cidade").value;
+                const estado = document.getElementById("estado").value;
+                const pais = document.getElementById("pais").value;
+                const populacao = parseFloat(document.getElementById("populacao").value);
+
+                const descricaoProduto = document.getElementById("descricaoProduto").value;
+                const marca = document.getElementById("marca").value;
+                const preco = parseFloat(document.getElementById("preco").value);
+
+                const postPromises = [
+                    fetch('/api/Contas', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            nomeTitular: nomeTitular,
+                            saldo: saldo,
+                            agencia: agencia,
+                        }),
+                    }),
+
+                    fetch('/api/Cidades', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            nomeCidade: cidade,
+                            estado: estado,
+                            pais: pais,
+                            populacao: populacao,
+                        }),
+                    }),
+
+                    fetch('/api/Produtos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            descricaoProduto: descricaoProduto,
+                            marca: marca,
+                            preco: preco,
+                        }),
+                    }),
+
+                    fetch('/api/Funcionarios', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            nome: nomeFuncionario,
+                            cargo: cargoFuncionario,
+                            salario: salarioFuncionario,
+                        }),
+                    }),
+                ];
+
+                Promise.all(postPromises)
+                    .then(responses => {
+                        // Extrair IDs das respostas
+                        const contaId = responses[0].idTitular;
+                        const cidadeId = responses[1].idCidade;
+                        const produtoId = responses[2].idProduto;
+                        const funcionarioId = responses[3].id;
+
+                        // Construir o objeto de dados para a atualização do funcionário
+                        const funcionarioData = {
+                            contaId: contaId,
+                            cidadeId: cidadeId,
+                            produtoId: produtoId,
+                        };
+
+                        // Enviar solicitação PUT para atualizar o funcionário
+                        return fetch(`/api/Funcionarios/${funcionarioId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(funcionarioData),
+                        });
+                    })
+                    .then(() => {
+                        console.log('Todas as APIs foram atualizadas com sucesso.');
+                        fecharModal();
+                        fetchDataFuncionarios();
+                        fetchDataConta();
+                        fetchDataCidade();
+                        fetchDataProduto();
+                    })
+                    .catch(error => console.error('Erro ao realizar as requisições POST/PUT:', error));
+            }
+ 
         document.addEventListener("DOMContentLoaded", function () {
             console.log('DOMContentLoaded event triggered'); // Adicione este console.log
 

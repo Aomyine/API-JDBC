@@ -18,10 +18,6 @@ public class ContaBancaria {
     private Double saldo;
     private int agencia;
     
-    @JsonBackReference
-    @OneToOne(mappedBy = "conta")
-    private Funcionario funcionario;
-
     public ContaBancaria() {
         // Construtor vazio necessário para JPA
     }
@@ -63,13 +59,5 @@ public class ContaBancaria {
 
     public void setAgencia(int agencia) {
         this.agencia = agencia;
-    }
-
-    public Funcionario getFuncionario() {
-        return funcionario;
-    }
-
-    public void setFuncionario(Funcionario funcionario) {
-        this.funcionario = funcionario;
     }
 }

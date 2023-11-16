@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -40,10 +39,6 @@ public class Funcionario {
     @ManyToOne(fetch = FetchType.EAGER) 
     @JoinColumn(name = "idProduto")
     private Produto produto;
-
-    // @ManyToOne
-    // @JoinColumn(name = "idProduto")
-    // private Produto produto;
 
     public Funcionario() {
         // Construtor vazio necessário para JPA
