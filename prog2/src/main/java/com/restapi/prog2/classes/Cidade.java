@@ -1,9 +1,15 @@
 package com.restapi.prog2.classes;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "cidades")
@@ -15,6 +21,11 @@ public class Cidade {
     private String estado;
     private String pais;
     private int populacao;
+
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "funcionario_id")
+    private Funcionario funcionario;
 
     public Cidade() {
     }
@@ -65,5 +76,13 @@ public class Cidade {
 
     public void setPopulacao(int populacao) {
         this.populacao = populacao;
+    }
+
+    public Funcionario getFuncionario() {
+        return funcionario;
+    }
+
+    public void setFuncionario(Funcionario funcionario) {
+        this.funcionario = funcionario;
     }
 }
