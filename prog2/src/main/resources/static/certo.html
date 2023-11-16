@@ -230,68 +230,65 @@
         }
 
         async function abrirModalDetalhes(id) {
-            console.log("modal detalhes chamado");
-            try {
-                // Obter dados do funcionário
-                const response = await fetch(`/api/Funcionarios/${id}`);
-                if (!response.ok) {
-                    console.error("Funcionário não encontrado");
-                    return;
-                }
-
-                const data = await response.json();
-                const funcionario = data.id;
-                // const contaId = funcionario.conta ? funcionario.conta.id : null;
-                // const cidadeId = funcionario.cidade ? funcionario.cidade.id : null;
-                // const produtoId = funcionario.produto ? funcionario.produto.id : null;
-
-                // Obter detalhes de conta, cidade e produto
-                // const [conta, cidade, produto] = await Promise.all([
-                //     contaId ? fetchDataContaPorId(contaId) : null,
-                //     cidadeId ? fetchDataCidadePorId(cidadeId) : null,
-                //     produtoId ? fetchDataProdutoPorId(produtoId) : null
-                // ]);
-
-                // Abre o modal de detalhes
-                abrirModal();
-
-                // Preenche os campos do modal com as informações do funcionário
-                document.getElementById("nomeFuncionario").value = funcionario.nome;
-                document.getElementById("cargoFuncionario").value = funcionario.cargo;
-                document.getElementById("salarioFuncionario").value = funcionario.salario;
-
-                // // Preenche os campos específicos de conta bancária, cidade e produto
-                // if (conta) {
-                //     document.getElementById("nomeTitular").value = conta.nomeTitular;
-                //     document.getElementById("saldo").value = conta.saldo;
-                //     document.getElementById("agencia").value = conta.agencia;
-                // }
-
-                // if (cidade) {
-                //     document.getElementById("cidade").value = cidade.nome;
-                //     document.getElementById("estado").value = cidade.estado;
-                //     document.getElementById("pais").value = cidade.pais;
-                //     document.getElementById("populacao").value = cidade.populacao;
-                // }
-
-                // if (produto) {
-                //     document.getElementById("descricaoProduto").value = produto.descricaoProduto;
-                //     document.getElementById("marca").value = produto.marca;
-                //     document.getElementById("preco").value = produto.preco;
-                // }
-
-                // Desabilite os campos para evitar edição
-                console.log("desabilitei")
-                const inputs = document.querySelectorAll("#modalCadastroProduto input");
-                inputs.forEach(input => (input.disabled = true));
-
-                // Remova o botão de salvar
-                const botaoSalvar = document.getElementById("botao_salvar");
-                botaoSalvar.style.display = "none";
-            } catch (error) {
-                console.error("Erro ao obter detalhes do funcionário:", error);
-            }
+    try {
+        const response = await fetch(`/api/Funcionarios/${id}/detalhes`);
+        if (!response.ok) {
+            console.error("Funcionário não encontrado");
+            return;
         }
+
+        const data = await response.json();
+        const funcionario = data.funcionario;
+        const contaId = funcionario.conta ? funcionario.conta.id : null;
+        const cidadeId = funcionario.cidade ? funcionario.cidade.id : null;
+        const produtoId = funcionario.produto ? funcionario.produto.id : null;
+
+        // Obter detalhes de conta, cidade e produto
+        const [conta, cidade, produto] = await Promise.all([
+            contaId ? fetchDataContaPorId(contaId) : null,
+            cidadeId ? fetchDataCidadePorId(cidadeId) : null,
+            produtoId ? fetchDataProdutoPorId(produtoId) : null
+        ]);
+
+        // Abre o modal de detalhes
+        abrirModal();
+
+        // Preenche os campos do modal com as informações do funcionário
+        document.getElementById("nomeFuncionario").value = funcionario.nome;
+        document.getElementById("cargoFuncionario").value = funcionario.cargo;
+        document.getElementById("salarioFuncionario").value = funcionario.salario;
+
+        // Preenche os campos específicos de conta bancária, cidade e produto
+        if (conta) {
+            document.getElementById("nomeTitular").value = conta.nomeTitular;
+            document.getElementById("saldo").value = conta.saldo;
+            document.getElementById("agencia").value = conta.agencia;
+        }
+
+        if (cidade) {
+            document.getElementById("cidade").value = cidade.nome;
+            document.getElementById("estado").value = cidade.estado;
+            document.getElementById("pais").value = cidade.pais;
+            document.getElementById("populacao").value = cidade.populacao;
+        }
+
+        if (produto) {
+            document.getElementById("descricaoProduto").value = produto.descricaoProduto;
+            document.getElementById("marca").value = produto.marca;
+            document.getElementById("preco").value = produto.preco;
+        }
+
+        // Desabilite os campos para evitar edição
+        const inputs = document.querySelectorAll("#modalCadastroProduto input");
+        inputs.forEach(input => (input.disabled = true));
+
+        // Remova o botão de salvar
+        const botaoSalvar = document.getElementById("botao_salvar");
+        botaoSalvar.style.display = "none";
+    } catch (error) {
+        console.error("Erro ao obter detalhes do funcionário:", error);
+    }
+}
 
 async function fetchDataContaPorId(contaId) {
     try {
@@ -437,46 +434,46 @@ async function fetchDataProdutoPorId(produtoId) {
             Promise.all(postPromises)
             .then(responses => {
                 // Supondo que as respostas tenham uma propriedade 'id'
-                const contaId = responses[0].idConta;
+                const contaId = responses[0].id;
 
-                const cidadeId = responses[1].idCidade;
-                const produtoId = responses[2].idProduto;
+                const cidadeId = responses[1].id;
+                const produtoId = responses[2].id;
    
-                const funcionarioId = responses[3].id;
+                const funcionarioId = responses[3].id; // Assumindo que a última solicitação POST é para funcionários
 
                 const updatePromises = [
-                    fetch(`/api/Contas/${contaId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            funcionarioId: funcionarioId,
-                        }),
-                    }),
+                    // fetch(`/api/Contas/${contaId}`, {
+                    //     method: 'PATCH',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({
+                    //         funcionarioId: funcionarioId,
+                    //     }),
+                    // }),
 
-                    fetch(`/api/Cidades/${cidadeId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            funcionarioId: funcionarioId,
-                        }),
-                    }),
+                    // fetch(`/api/Cidades/${cidadeId}`, {
+                    //     method: 'PATCH',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({
+                    //         funcionarioId: funcionarioId,
+                    //     }),
+                    // }),
 
-                    fetch(`/api/Produtos/${produtoId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            funcionarioId: funcionarioId,
-                        }),
-                    }),
+                    // fetch(`/api/Produtos/${produtoId}`, {
+                    //     method: 'PATCH',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({
+                    //         funcionarioId: funcionarioId,
+                    //     }),
+                    // }),
 
                     fetch(`/api/Funcionarios/${funcionarioId}`, {
-                        method: 'PUT',
+                        method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
                         },

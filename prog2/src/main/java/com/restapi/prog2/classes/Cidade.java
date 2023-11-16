@@ -1,8 +1,10 @@
 package com.restapi.prog2.classes;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -15,6 +17,10 @@ public class Cidade {
     private String estado;
     private String pais;
     private int populacao;
+
+    @OneToMany(mappedBy = "cidade")
+    private List<Funcionario> funcionarios; // Ajuste aqui
+
 
     public Cidade() {
     }
@@ -65,5 +71,9 @@ public class Cidade {
 
     public void setPopulacao(int populacao) {
         this.populacao = populacao;
+    }
+
+    public List<Funcionario> getFuncionarios() {
+        return funcionarios;
     }
 }

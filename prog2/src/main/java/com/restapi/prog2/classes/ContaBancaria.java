@@ -3,7 +3,10 @@ package com.restapi.prog2.classes;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.List;
+
 
 @Entity
 @Table(name = "contas_bancarias")
@@ -14,6 +17,10 @@ public class ContaBancaria {
     private String nomeTitular;
     private Double saldo;
     private int agencia;
+    
+    @OneToMany(mappedBy = "conta")
+    private List<Funcionario> funcionarios; // Ajuste aqui
+
 
     public ContaBancaria() {
         // Construtor vazio necessário para JPA
@@ -56,5 +63,9 @@ public class ContaBancaria {
 
     public void setAgencia(int agencia) {
         this.agencia = agencia;
+    }
+
+    public List<Funcionario> getFuncionarios() {
+        return funcionarios;
     }
 }

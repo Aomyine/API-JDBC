@@ -3,8 +3,12 @@ package com.restapi.prog2.classes;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.List;
 
 @Entity
 @Table(name = "funcionarios")
@@ -16,23 +20,30 @@ public class Funcionario {
     private String cargo;
     private Double salario;
 
+    @OneToOne
+    @JoinColumn(name = "idConta", insertable = false, updatable = false)
+    private ContaBancaria conta;
+
     @ManyToOne
+    @JoinColumn(name = "idCidade", insertable = false, updatable = false)
     private Cidade cidade;
 
     @ManyToOne
-    private ContaBancaria conta;
+    @JoinColumn(name = "idProduto", insertable = false, updatable = false)
+    private Produto produto;
 
     public Funcionario() {
         // Construtor vazio necessário para JPA
     }
 
-    public Funcionario(int id, String nome, String cargo, Double salario, Cidade cidade, ContaBancaria conta) {
+    public Funcionario(int id, String nome, String cargo, Double salario, Cidade cidade, ContaBancaria conta, Produto produto) {
         this.id = id;
         this.nome = nome;
         this.cargo = cargo;
         this.salario = salario;
         this.cidade = cidade;
         this.conta = conta;
+        this.produto = produto;
     }
 
     public int getId() {
@@ -81,5 +92,13 @@ public class Funcionario {
 
     public void setConta(ContaBancaria conta) {
         this.conta = conta;
+    }
+
+    public Produto getProduto() {
+        return produto;
+    }
+
+    public void setProduto(Produto produto) {
+        this.produto = produto;
     }
 }
