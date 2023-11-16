@@ -4,11 +4,13 @@ import com.restapi.prog2.repositorios.CidadeRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 
 @RestController
+@RequestMapping
 public class CidadeController {
 
     @Autowired
@@ -25,10 +27,11 @@ public class CidadeController {
     }
 
     @PostMapping("/api/Cidades")
-    public Cidade createCidade(@RequestBody Cidade cidade) {
+    public ResponseEntity<Cidade> createCidade(@RequestBody Cidade cidade) {
         Cidade createdCidade = cidadeRepo.save(cidade);
-        return createdCidade;
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCidade);
     }
+
 
     @PutMapping("/api/Cidades/{cidadeId}")
     public int updateCidade(@RequestBody Cidade cidadeRequest, @PathVariable int cidadeId) {

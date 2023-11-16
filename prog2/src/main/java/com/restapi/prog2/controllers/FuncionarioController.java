@@ -24,52 +24,17 @@ public class FuncionarioController {
     }
 
     @GetMapping("/api/Funcionarios/{id}")
-    public Optional<Funcionario> getFuncionario(@PathVariable int id) {
-        return funcionarioRepo.findById(id);
-    }
-
-
-    @GetMapping("/api/Funcionarios/detalhes/{id}")
-    public ResponseEntity<Map<String, Object>> getDetalhesFuncionario(@PathVariable int id) {
-        Optional<Funcionario> funcionario = funcionarioRepo.findById(id);
-
-        if (funcionario.isPresent()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("funcionario", funcionario.get());
-            response.put("conta", funcionario.get().getConta());
-            response.put("cidade", funcionario.get().getCidade());
-            response.put("produto", funcionario.get().getProduto());
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Funcionario> getFuncionario(@PathVariable int id) {
+        Optional<Funcionario> opt = funcionarioRepo.findById(id);
+    
+        if (opt.isPresent()) {
+            Funcionario funcionario = opt.get();
+            return ResponseEntity.ok(funcionario);
         }
+    
+        return ResponseEntity.notFound().build();
     }
-
-    @GetMapping("/api/Funcionarios/detalhes/todos")
-    public ResponseEntity<List<Map<String, Object>>> getDetalhesTodosFuncionarios() {
-        Iterable<Funcionario> funcionariosIterable = funcionarioRepo.findAll();
     
-        // Convertendo para uma lista
-        List<Funcionario> funcionarios = new ArrayList<>();
-        funcionariosIterable.forEach(funcionarios::add);
-    
-        if (!funcionarios.isEmpty()) {
-            List<Map<String, Object>> responseList = new ArrayList<>();
-    
-            for (Funcionario funcionario : funcionarios) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("funcionario", funcionario);
-                response.put("conta", funcionario.getConta());
-                response.put("cidade", funcionario.getCidade());
-                response.put("produto", funcionario.getProduto());
-                responseList.add(response);
-            }
-    
-            return ResponseEntity.ok(responseList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
     @PostMapping("/api/Funcionarios")
     public Funcionario createFuncionario(@RequestBody Funcionario funcionario) {
@@ -78,27 +43,90 @@ public class FuncionarioController {
     }
 
     @PutMapping("/api/Funcionarios/{FuncionarioId}")
-    public int updateFuncionario(@RequestBody Map<String, Object> updates, @PathVariable int FuncionarioId) {
+    public int updateFuncionario(@RequestBody Funcionario updates, @PathVariable int FuncionarioId) {
         Optional<Funcionario> opt = funcionarioRepo.findById(FuncionarioId);
     
         if (opt.isPresent()) {
             Funcionario funcionario = opt.get();
     
-            // Atualizar apenas os campos fornecidos no corpo da solicitação
-            updates.forEach((key, value) -> {
-                switch (key) {
-                    case "nome":
-                        funcionario.setNome((String) value);
-                        break;
-                    case "cargo":
-                        funcionario.setCargo((String) value);
-                        break;
-                    case "salario":
-                        funcionario.setSalario((Double) value);
-                        break;
-                    // Adicione mais casos para outros campos, se necessário
+            // Atualizar todos os campos
+            funcionario.setNome(updates.getNome());
+            funcionario.setCargo(updates.getCargo());
+            funcionario.setSalario(updates.getSalario());
+    
+            // Atualizar a conta associada
+            ContaBancaria contaAtualizada = updates.getConta();
+            ContaBancaria contaExistente = funcionario.getConta();
+    
+            if (contaAtualizada != null) {
+                // Atualizar a conta existente ou adicionar uma nova conta
+                if (contaExistente != null) {
+                    contaExistente.setNomeTitular(contaAtualizada.getNomeTitular());
+                    contaExistente.setSaldo(contaAtualizada.getSaldo());
+                    contaExistente.setAgencia(contaAtualizada.getAgencia());
+                } else {
+                    ContaBancaria novaConta = new ContaBancaria(
+                            contaAtualizada.getIdTitular(),
+                            contaAtualizada.getNomeTitular(),
+                            contaAtualizada.getSaldo(),
+                            contaAtualizada.getAgencia()
+                    );
+                    funcionario.setConta(novaConta);
                 }
-            });
+            } else {
+                // Se contaAtualizada é nula, remover a conta existente
+                funcionario.setConta(null);
+            }
+    
+            // Atualizar o produto associado
+            Produto produtoAtualizado = updates.getProduto();
+            Produto produtoExistente = funcionario.getProduto();
+    
+            if (produtoAtualizado != null) {
+                // Atualizar o produto existente ou adicionar um novo produto
+                if (produtoExistente != null) {
+                    produtoExistente.setDescricao(produtoAtualizado.getDescricao());
+                    produtoExistente.setMarca(produtoAtualizado.getMarca());
+                    produtoExistente.setPreco(produtoAtualizado.getPreco());
+                } else {
+                    Produto novoProduto = new Produto(
+                            produtoAtualizado.getIdProduto(),
+                            produtoAtualizado.getDescricao(),
+                            produtoAtualizado.getMarca(),
+                            produtoAtualizado.getPreco()
+                    );
+                    funcionario.setProduto(novoProduto);
+                }
+            } else {
+                // Se produtoAtualizado é nulo, remover o produto existente
+                funcionario.setProduto(null);
+            }
+
+            // Atualizar a cidade associada
+            Cidade cidadeAtualizada = updates.getCidade();
+            Cidade cidadeExistente = funcionario.getCidade();
+
+            if (cidadeAtualizada != null) {
+                // Atualizar a cidade existente ou adicionar uma nova cidade
+                if (cidadeExistente != null) {
+                    cidadeExistente.setNomeCidade(cidadeAtualizada.getNomeCidade());
+                    cidadeExistente.setEstado(cidadeAtualizada.getEstado());
+                    cidadeExistente.setPais(cidadeAtualizada.getPais());
+                    cidadeExistente.setPopulacao(cidadeAtualizada.getPopulacao());
+                } else {
+                    Cidade novaCidade = new Cidade(
+                            cidadeAtualizada.getIdCidade(),
+                            cidadeAtualizada.getNomeCidade(),
+                            cidadeAtualizada.getEstado(),
+                            cidadeAtualizada.getPais(),
+                            cidadeAtualizada.getPopulacao()
+                    );
+                    funcionario.setCidade(novaCidade);
+                }
+            } else {
+                // Se cidadeAtualizada é nula, remover a cidade existente
+                funcionario.setCidade(null);
+            }
     
             funcionarioRepo.save(funcionario);
             return FuncionarioId;

@@ -1,6 +1,7 @@
 package com.restapi.prog2.classes;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -8,7 +9,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "funcionarios")
@@ -20,17 +23,27 @@ public class Funcionario {
     private String cargo;
     private Double salario;
 
-    @OneToOne
-    @JoinColumn(name = "idConta", insertable = false, updatable = false)
+    @JsonManagedReference  
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "idTitular")
     private ContaBancaria conta;
 
-    @ManyToOne
-    @JoinColumn(name = "idCidade", insertable = false, updatable = false)
+    @JsonManagedReference
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ManyToOne(fetch = FetchType.EAGER) 
+    @JoinColumn(name = "idCidade")
     private Cidade cidade;
 
-    @ManyToOne
-    @JoinColumn(name = "idProduto", insertable = false, updatable = false)
+    @JsonManagedReference
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ManyToOne(fetch = FetchType.EAGER) 
+    @JoinColumn(name = "idProduto")
     private Produto produto;
+
+    // @ManyToOne
+    // @JoinColumn(name = "idProduto")
+    // private Produto produto;
 
     public Funcionario() {
         // Construtor vazio necessário para JPA
@@ -93,7 +106,6 @@ public class Funcionario {
     public void setConta(ContaBancaria conta) {
         this.conta = conta;
     }
-
     public Produto getProduto() {
         return produto;
     }
