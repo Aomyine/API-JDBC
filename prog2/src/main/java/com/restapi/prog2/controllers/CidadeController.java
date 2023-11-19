@@ -4,7 +4,6 @@ import com.restapi.prog2.repositorios.CidadeRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
@@ -22,31 +21,30 @@ public class CidadeController {
     }
 
     @GetMapping("/api/Cidades/{id}")
-    public Optional<Cidade> getCidade(@PathVariable int id) {
+    public Optional<Cidade> getCidade(@PathVariable long id) {
         return cidadeRepo.findById(id);
     }
 
-    @PostMapping("/api/Cidades")
-    public ResponseEntity<Cidade> createCidade(@RequestBody Cidade cidade) {
-        Cidade createdCidade = cidadeRepo.save(cidade);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdCidade);
-    }
+	@PostMapping("/api/Cidades")
+	Cidade createCidade(@RequestBody Cidade c) {
+		Cidade createdCid = cidadeRepo.save(c);
+		return createdCid;
+	}
 
+    @PutMapping("/api/Cidades/{idCidade}")
+	Optional<Cidade> updateCidade(@RequestBody Cidade cidadeReq, @PathVariable long idCidade) {
+		Optional<Cidade> opt = cidadeRepo.findById(idCidade);
+		if (opt.isPresent()) {
+			if (cidadeReq.getIdCidade() == idCidade) {
+				cidadeRepo.save(cidadeReq);
+				return opt;
+			}
+		}
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados da cidade com id " + idCidade);
+	}	
 
-    @PutMapping("/api/Cidades/{cidadeId}")
-    public int updateCidade(@RequestBody Cidade cidadeRequest, @PathVariable int cidadeId) {
-        Optional<Cidade> opt = cidadeRepo.findById(cidadeId);
-        if (opt.isPresent()) {
-            if (cidadeRequest.getIdCidade() == cidadeId) {
-                cidadeRepo.save(cidadeRequest);
-                return cidadeId;
-            }
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados da cidade com id " + cidadeId);
-    }
-
-    @DeleteMapping("/api/Cidades/{id}")
-    public void deleteCidade(@PathVariable int id) {
-        cidadeRepo.deleteById(id);
-    }
+	@DeleteMapping("/api/Cidades/{id}")
+	void deleteCidade(@PathVariable long id) {
+		cidadeRepo.deleteById(id);
+	}
 }
