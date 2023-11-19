@@ -1,50 +1,36 @@
 package com.restapi.prog2.classes;
-
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "funcionarios")
 public class Funcionario {
     @Id
     @GeneratedValue
-    private int id;
+    private long id;
     private String nome;
     private String cargo;
     private Double salario;
 
-    @JsonManagedReference  
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "idTitular")
+    @OneToOne(optional=false)
     private ContaBancaria conta;
 
-    @JsonManagedReference
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ManyToOne(fetch = FetchType.EAGER) 
-    @JoinColumn(name = "idCidade")
+    @ManyToOne(optional=false)
     private Cidade cidade;
 
-    @JsonManagedReference
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ManyToOne(fetch = FetchType.EAGER) 
-    @JoinColumn(name = "idProduto")
+    @ManyToOne(optional=false)
     private Produto produto;
 
     public Funcionario() {
         // Construtor vazio necessário para JPA
     }
 
-    public Funcionario(int id, String nome, String cargo, Double salario, Cidade cidade, ContaBancaria conta, Produto produto) {
+    public Funcionario(long id, String nome, String cargo, Double salario, Cidade cidade, ContaBancaria conta, Produto produto) {
         this.id = id;
         this.nome = nome;
         this.cargo = cargo;
@@ -54,11 +40,11 @@ public class Funcionario {
         this.produto = produto;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
