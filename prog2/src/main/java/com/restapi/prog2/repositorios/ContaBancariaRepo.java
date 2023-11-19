@@ -4,6 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ContaBancariaRepo extends CrudRepository<ContaBancaria, Integer> {
+public interface ContaBancariaRepo extends CrudRepository<ContaBancaria, Long> {
 
 }
