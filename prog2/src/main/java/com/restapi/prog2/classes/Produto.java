@@ -6,12 +6,13 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 
+
 @Entity
 @Table(name = "produtos")
 public class Produto {
     @Id
     @GeneratedValue
-    private int idProduto;
+    private long idProduto;
     private String descricao;
     private String marca;
     private Double preco;
@@ -21,18 +22,18 @@ public class Produto {
         // Construtor vazio necessário para JPA
     }
 
-    public Produto(int idProduto, String descricao, String marca, Double preco) {
+    public Produto(long idProduto, String descricao, String marca, Double preco) {
         this.idProduto = idProduto;
         this.descricao = descricao;
         this.marca = marca;
         this.preco = preco;
     }
 
-    public int getIdProduto() {
+    public long getIdProduto() {
         return idProduto;
     }
 
-    public void setIdProduto(int idProduto) {
+    public void setIdProduto(long idProduto) {
         this.idProduto = idProduto;
     }
 
@@ -59,5 +60,6 @@ public class Produto {
     public void setPreco(Double preco) {
         this.preco = preco;
     }
+
 
 }
