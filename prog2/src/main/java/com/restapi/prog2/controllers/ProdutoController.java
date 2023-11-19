@@ -15,44 +15,36 @@ public class ProdutoController {
     @Autowired
     private ProdutoRepo produtoRepo;
 
-    @GetMapping("/api/Produtos")
+      @GetMapping("/api/Produtos")
     public Iterable<Produto> getProdutos() {
         return produtoRepo.findAll();
     }
 
     @GetMapping("/api/Produtos/{id}")
-    public Optional<Produto> getProduto(@PathVariable int id) {
+    public Optional<Produto> getProduto(@PathVariable long id) {
         return produtoRepo.findById(id);
     }
 
-    @PostMapping("/api/Produtos")
-    public Produto createProduto(@RequestBody Produto produto) {
-        try {
-            Produto createdProduto = produtoRepo.save(produto);
-            return createdProduto;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao criar o produto.", e);
-        }
-    }
+	@PostMapping("/api/Produtos")
+	Produto createProduto(@RequestBody Produto p) {
+		Produto createdProd = produtoRepo.save(p);
+		return createdProd;
+	}
 
-    @PutMapping("/api/Produtos/{ProdutoId}")
-    public Produto updateProduto(@RequestBody Produto produtoRequest, @PathVariable int ProdutoId) {
-        Optional<Produto> opt = produtoRepo.findById(ProdutoId);
-        if (opt.isPresent()) {
-            if (produtoRequest.getIdProduto() == ProdutoId) {
-                try {
-                    Produto updatedProduto = produtoRepo.save(produtoRequest);
-                    return updatedProduto;
-                } catch (Exception e) {
-                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao atualizar o produto.", e);
-                }
-            }
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com o id " + ProdutoId);
-    }
+    @PutMapping("/api/Produtos/{idProduto}")
+	Optional<Produto> updateProduto(@RequestBody Produto produtoReq, @PathVariable long idProduto) {
+		Optional<Produto> opt = produtoRepo.findById(idProduto);
+		if (opt.isPresent()) {
+			if (produtoReq.getIdProduto() == idProduto) {
+				produtoRepo.save(produtoReq);
+				return opt;
+			}
+		}
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados de produto com id " + idProduto);
+	}	
 
-    @DeleteMapping("/api/Produtos/{id}")
-    public void deleteProduto(@PathVariable int id) {
-        produtoRepo.deleteById(id);
-    }
+	@DeleteMapping("/api/Produtos/{id}")
+	void deleteProduto(@PathVariable long id) {
+		produtoRepo.deleteById(id);
+	}
 }
