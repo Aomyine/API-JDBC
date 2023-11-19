@@ -3,37 +3,36 @@ package com.restapi.prog2.classes;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "contas_bancarias")
 public class ContaBancaria {
     @Id
     @GeneratedValue
-    private int idTitular;
+    private long idTitular;
     private String nomeTitular;
     private Double saldo;
     private int agencia;
-    
+
+
     public ContaBancaria() {
         // Construtor vazio necessário para JPA
     }
 
-    public ContaBancaria(int idTitular, String nomeTitular, Double saldo, int agencia) {
+    public ContaBancaria(long idTitular, String nomeTitular, Double saldo, int agencia) {
         this.idTitular = idTitular;
         this.nomeTitular = nomeTitular;
         this.saldo = saldo;
         this.agencia = agencia;
     }
 
-    public int getIdTitular() {
+    public long getIdTitular() {
         return idTitular;
     }
 
-    public void setIdTitular(int idTitular) {
+    public void setIdTitular(long idTitular) {
         this.idTitular = idTitular;
     }
 
@@ -60,4 +59,5 @@ public class ContaBancaria {
     public void setAgencia(int agencia) {
         this.agencia = agencia;
     }
+
 }
