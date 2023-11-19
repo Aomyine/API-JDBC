@@ -4,6 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CidadeRepo extends CrudRepository<Cidade, Integer> {
+public interface CidadeRepo extends CrudRepository<Cidade, Long> {
     
 }
