@@ -17,13 +17,13 @@ public class Funcionario {
     private String cargo;
     private Double salario;
 
-    @OneToOne(optional=false)
+    @OneToOne
     private ContaBancaria conta;
 
-    @ManyToOne(optional=false)
+    @ManyToOne
     private Cidade cidade;
 
-    @ManyToOne(optional=false)
+    @ManyToOne
     private Produto produto;
 
     public Funcionario() {

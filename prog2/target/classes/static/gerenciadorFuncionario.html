@@ -247,13 +247,13 @@
                 const funcionario = await response.json();
 
                 // Obter dados da conta associada
-                const conta = await fetchDataContaPorId(funcionario.contaId);
+                // const conta = await fetchDataContaPorId(funcionario.conta.idTitular);
 
-                // Obter dados da cidade associada
-                const cidade = await fetchDataCidadePorId(funcionario.cidadeId);
+                // // Obter dados da cidade associada
+                // const cidade = await fetchDataCidadePorId(funcionario.cidade.idCidade);
 
-                // Obter dados do produto associado
-                const produto = await fetchDataProdutoPorId(funcionario.produtoId);
+                // // Obter dados do produto associado
+                // const produto = await fetchDataProdutoPorId(funcionario.produto.idProduto);
 
                 // Abre o modal de detalhes
                 abrirModal(false);
@@ -263,18 +263,26 @@
                 document.getElementById("cargoFuncionario").value = funcionario.cargo;
                 document.getElementById("salarioFuncionario").value = funcionario.salario;
 
-                document.getElementById("nomeTitular").value = conta.nomeTitular;
-                document.getElementById("saldo").value = conta.saldo;
-                document.getElementById("agencia").value = conta.agencia;
+                if (funcionario.conta){
+                    document.getElementById("nomeTitular").value = funcionario.conta?.nomeTitular;
+                    document.getElementById("saldo").value = funcionario.conta?.saldo;
+                    document.getElementById("agencia").value = funcionario.conta?.agencia;
+                }
 
-                document.getElementById("cidade").value = cidade.nomeCidade;
-                document.getElementById("estado").value = cidade.estado;
-                document.getElementById("pais").value = cidade.pais;
-                document.getElementById("populacao").value = cidade.populacao;
+                if (funcionario.cidade){
+                    document.getElementById("cidade").value = funcionario.cidade?.nomeCidade;
+                    document.getElementById("estado").value = funcionario.cidade?.estado;
+                    document.getElementById("pais").value = funcionario.cidade?.pais;
+                    document.getElementById("populacao").value = funcionario.cidade?.populacao;
 
-                document.getElementById("descricaoProduto").value = produto.descricaoProduto;
-                document.getElementById("marca").value = produto.marca;
-                document.getElementById("preco").value = produto.preco;
+                }
+               
+                if(funcionario.produto){
+                    document.getElementById("descricaoProduto").value = funcionario.produto?.descricao;
+                    document.getElementById("marca").value = funcionario.produto?.marca;
+                    document.getElementById("preco").value = funcionario.produto?.preco;
+
+                }
 
             } catch (error) {
                 console.error("Erro ao obter detalhes do funcionário:", error);
@@ -426,7 +434,7 @@ async function fetchDataProdutoPorId(produtoId) {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            descricaoProduto: descricaoProduto,
+                            descricao: descricaoProduto,
                             marca: marca,
                             preco: preco,
                         }),
@@ -444,42 +452,62 @@ async function fetchDataProdutoPorId(produtoId) {
                         }),
                     }),
                 ];
-
-                Promise.all(postPromises)
-                    .then(responses => {
-                        // Extrair IDs das respostas
-                        const contaId = responses[0].idTitular;
-                        const cidadeId = responses[1].idCidade;
-                        const produtoId = responses[2].idProduto;
-                        const funcionarioId = responses[3].id;
-
-                        // Construir o objeto de dados para a atualização do funcionário
-                        const funcionarioData = {
-                            contaId: contaId,
-                            cidadeId: cidadeId,
-                            produtoId: produtoId,
-                        };
-
-                        // Enviar solicitação PUT para atualizar o funcionário
-                        return fetch(`/api/Funcionarios/${funcionarioId}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(funcionarioData),
-                        });
-                    })
-                    .then(() => {
-                        console.log('Todas as APIs foram atualizadas com sucesso.');
-                        fecharModal();
-                        fetchDataFuncionarios();
-                        fetchDataConta();
-                        fetchDataCidade();
-                        fetchDataProduto();
-                    })
-                    .catch(error => console.error('Erro ao realizar as requisições POST/PUT:', error));
+                let funcionario = {
+                nome: nomeFuncionario,
+                cargo: cargoFuncionario,
+                salario: salarioFuncionario
+                };
+                alterarFuncionario(postPromises, funcionario);
+                
             }
- 
+            async function alterarFuncionario (postPromises, funcionario) { 
+                Promise.all(postPromises)
+                            .then(async responses => {
+                                // As respostas de todas as chamadas POST estarão disponíveis aqui
+                                // Você pode extrair os IDs ou outras informações necessárias para o PUT
+
+                                const [contasResponse, cidadesResponse, produtosResponse, funcionariosResponse] = responses;
+
+                                // Exemplo de como obter o ID da entidade criada
+                                const funcionarioId = (await funcionariosResponse.json()).id;
+                                const contaId = (await contasResponse.json()).idTitular;
+                                const cidadeId = (await cidadesResponse.json()).idCidade;
+                                const produtoId = (await produtosResponse.json()).idProduto;
+                    
+                                console.log(contaId);
+                                console.log(cidadeId);
+                                console.log(produtoId);
+                                console.log(funcionarioId);
+
+                            // Construir o objeto de dados para a atualização do funcionário
+                            const funcionarioData = Object.assign( {
+
+                                contaId: contaId,
+                                cidadeId: cidadeId,
+                                produtoId: produtoId,
+                            }, funcionario
+                            );
+                            console.log(funcionario);        
+                            // Enviar solicitação PUT para atualizar o funcionário
+                            return await fetch(`/api/Funcionarios/${funcionarioId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(funcionarioData),
+                            }
+                            );
+                        })
+                        .then(() => {
+                            console.log('Todas as APIs foram atualizadas com sucesso.');
+                            fecharModal();
+                            fetchDataFuncionarios();
+                            fetchDataConta();
+                            fetchDataCidade();
+                            fetchDataProduto();
+                        })
+                        .catch(error => console.error('Erro ao realizar as requisições POST/PUT:', error));
+        }
         document.addEventListener("DOMContentLoaded", function () {
             console.log('DOMContentLoaded event triggered'); // Adicione este console.log
 
