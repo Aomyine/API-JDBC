@@ -11,19 +11,34 @@ h1, h2, h3, p, a, li {
     color: white;
 }
 
+#login_botao{
+    background-color: #004BA8;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    /* margin-top: 20px; */
+}
+
+button:hover{
+    background-color: #002d5a;
+}
 
 /* HEADER */
 
-/* Adicione esta regra ao seu CSS existente */
 #logo-container {
-    width: 15%; /* Defina a largura desejada para o logotipo */
+    width: 15%;
 }
 
 #logo {
-    width: 100%; /* Certifique-se de manter a largura em 100% */
-    height: 80%; /* Isso mantém a proporção original da imagem */
+    width: 100%;
+    height: 80%;
     margin-left: 10%;
 }
+
 #login {
     margin-right: 2%;
     font-size: 140%;
@@ -42,12 +57,11 @@ header {
     justify-content: space-between;
     align-items: center;
 }
-
 /* SECTION */
 
 section {
     width: 100%;
-    height: 65%;
+    height: 60%;
     border-style: solid blue 10px;
     display: flex;
     justify-content: center;
@@ -55,6 +69,24 @@ section {
     align-items: center;
     margin: 10px 0;
     line-height: 50px;
+}
+
+#login_botao button {
+    background-color: #575761;
+    display: inline-block;
+    /* color: #FFFFFF; */
+    width: 100%;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#login_botao button:hover {
+    background-color: #000000;
 }
 
 h1 {
@@ -84,33 +116,6 @@ a {
 
 .div_texto a:hover {
     color: #004BA8;
-}
-
-/* Estilo para o botão */
-button {
-    background-color: #575761;
-    width: 10%;
-    height: 10%;
-    color: #FFFFFF;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 15px;
-}
-
-button a {
-    text-decoration: none;
-    color: #FFFFFF;
-    font-size: 140%;
-}
-
-button:hover {
-    background-color: #ffffff;
-}
-
-button:hover a {
-    color: #000000;
 }
 
 /* FORMS */

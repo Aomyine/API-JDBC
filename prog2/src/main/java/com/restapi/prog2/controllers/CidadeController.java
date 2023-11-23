@@ -1,4 +1,5 @@
 package com.restapi.prog2.controllers;
+
 import com.restapi.prog2.classes.Cidade;
 import com.restapi.prog2.repositorios.CidadeRepo;
 
@@ -25,26 +26,31 @@ public class CidadeController {
         return cidadeRepo.findById(id);
     }
 
-	@PostMapping("/api/Cidades")
-	Cidade createCidade(@RequestBody Cidade c) {
-		Cidade createdCid = cidadeRepo.save(c);
-		return createdCid;
-	}
+    @PostMapping("/api/Cidades")
+    Cidade createCidade(@RequestBody Cidade c) {
+        Cidade createdCid = cidadeRepo.save(c);
+        return createdCid;
+    }
 
     @PutMapping("/api/Cidades/{idCidade}")
-	Optional<Cidade> updateCidade(@RequestBody Cidade cidadeReq, @PathVariable long idCidade) {
-		Optional<Cidade> opt = cidadeRepo.findById(idCidade);
-		if (opt.isPresent()) {
-			if (cidadeReq.getIdCidade() == idCidade) {
-				cidadeRepo.save(cidadeReq);
-				return opt;
-			}
-		}
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados da cidade com id " + idCidade);
-	}	
+    Optional<Cidade> updateCidade(@RequestBody Cidade cidadeReq, @PathVariable long idCidade) {
+        Optional<Cidade> opt = cidadeRepo.findById(idCidade);
+        if (opt.isPresent()) {
+            Cidade cidadeExistente = opt.get();
+            if (cidadeExistente.getIdCidade() == idCidade) {
+                // Atualize os campos relevantes da cidadeExistente com base nos campos de cidadeReq
+                cidadeExistente.setNomeCidade(cidadeReq.getNomeCidade());
+                cidadeExistente.setEstado(cidadeReq.getEstado());
 
-	@DeleteMapping("/api/Cidades/{id}")
-	void deleteCidade(@PathVariable long id) {
-		cidadeRepo.deleteById(id);
-	}
+                cidadeRepo.save(cidadeExistente);
+                return opt;
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados da cidade com id " + idCidade);
+    }	
+
+    @DeleteMapping("/api/Cidades/{id}")
+    void deleteCidade(@PathVariable long id) {
+        cidadeRepo.deleteById(id);
+    }
 }

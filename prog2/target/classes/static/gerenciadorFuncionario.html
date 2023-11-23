@@ -20,7 +20,7 @@
         </div>
 
         <div id="links_header">
-            <h1> Funcionários </h1> 
+            <h1 id="func_texto"> Funcionários </h1> 
         </div>
     </header>
 
@@ -30,7 +30,7 @@
                 <input type="text" id="nome" name="nome" placeholder="Digite o nome">
                 <input type="text" id="id" name="id" placeholder="Digite o ID">
                 <button id="botao_pesquisar" type="button" onclick="pesquisarFuncionarios()">Pesquisar</button>
-                <button id="botao_cadastrar" type="button" onclick="abrirModal(true)">Cadastrar</button>
+                <button id="botao_cadastrar" type="button" onclick="abrirModal(true, false)">Cadastrar</button>
             </form>
         </div>
 
@@ -100,7 +100,10 @@
                     <label for="preco">Preço:</label>
                     <input type="text" id="preco" name="preco" step="0.01" required>
                 </div>
-                <button onclick="salvarInfos()" id="botao_salvar">Salvar Informações</button>
+                <button id="botao_salvar">Salvar Informações</button>
+                <button id="botao_alterar">Alterar Funcionário</button>
+                <button id="salvar_alteracoes">Salvar Alterações</button>
+                <button id="botao_deletar">Excluir Funcionário</button>
             </div>
         </div>
     </div>
@@ -126,6 +129,7 @@
     <script defer>
         let dataFuncionarios = [];
         let isEditMode = false;
+        let modoAlterar = false;
 
         function pesquisarFuncionarios() {
             const nome = document.getElementById("nome").value.toLowerCase();
@@ -146,6 +150,48 @@
             renderFuncionarios(funcionariosFiltrados);
         }
 
+        async function excluirFuncionarioPorId(idFuncionario) {
+            try {
+                const response = await fetch(`/api/Funcionarios/${idFuncionario}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    console.log(`Funcionário com ID ${idFuncionario} excluído com sucesso.`);
+
+                    const contaId = obterContaId(idFuncionario);
+                    if (contaId) {
+                        await fetch(`/api/Contas/${contaId}`, {
+                            method: 'DELETE',
+                        });
+                    }
+
+                    fecharModal();
+                    fetchDataFuncionarios();
+                    fetchDataConta();
+                    fetchDataCidade();
+                    fetchDataProduto();
+                } else {
+                    console.error(`Erro ao excluir funcionário com ID ${idFuncionario}`);
+                }
+            } catch (error) {
+                console.error(`Erro ao excluir funcionário com ID ${idFuncionario}:`, error);
+            }
+        }
+
+        function obterContaId(idFuncionario) {
+            // Encontrar o funcionário pelo ID
+            const funcionario = dataFuncionarios.find(func => func.id === idFuncionario);
+
+            // Verificar se o funcionário e a conta existem
+            if (funcionario && funcionario.conta) {
+                // Retornar o ID da conta
+                return funcionario.conta.idTitular;
+            }
+
+            // Retornar null se não encontrar o funcionário ou a conta
+            return null;
+}
         async function fetchDataFuncionarios() {
             try {
                 const response = await fetch('/api/Funcionarios');
@@ -191,10 +237,10 @@
             console.log("Rendering funcionarios...");
             const funcionariosSection = document.getElementById("funcionarios-section");
 
+            // Limpa o conteúdo existente antes de adicionar novos funcionários
             funcionariosSection.innerHTML = "";
 
             funcionarios.forEach(funcionario => {
-
                 const divFuncionario = document.createElement("div");
                 divFuncionario.classList.add("funcionario");
 
@@ -206,39 +252,19 @@
 
                 divFuncionario.setAttribute("data-id", funcionario.id);
 
-                divFuncionario.addEventListener("click", () => abrirModalDetalhes(funcionario.id));
-
+                divFuncionario.addEventListener("click", (event) => {
+                    const id = event.currentTarget.dataset.id;
+                    console.log("Clicado no funcionário com ID:", id);
+                    abrirModalDetalhes(id);
+                });
                 funcionariosSection.appendChild(divFuncionario);
             });
-        }
-
-        async function fetchDataContaPorId(contaId) {
-            return fetch(`/api/Contas/${contaId}`)
-                .then(response => response.json())
-                .catch(error => console.error(`Erro ao obter dados da Conta com ID ${contaId}:`, error));
-
-            const response = await fetch(`/api/Contas/${contaId}`);
-            const data = await response.json();
-            console.log("Conta:", data);
-        }
-
-        function fetchDataCidadePorId(cidadeId) {
-            return fetch(`/api/Cidades/${cidadeId}`)
-                .then(response => response.json())
-                .catch(error => console.error(`Erro ao obter dados da Cidade com ID ${cidadeId}:`, error));
-        }
-
-        function fetchDataProdutoPorId(produtoId) {
-            return fetch(`/api/Produtos/${produtoId}`)
-                .then(response => response.json())
-                .catch(error => console.error(`Erro ao obter dados do Produto com ID ${produtoId}:`, error));
         }
 
         async function abrirModalDetalhes(id) {
             console.log("modal detalhes chamado");
 
             try {
-                // Obter dados do funcionário
                 const response = await fetch(`/api/Funcionarios/${id}`);
                 if (!response.ok) {
                     console.error("Funcionário não encontrado");
@@ -246,97 +272,46 @@
                 }
                 const funcionario = await response.json();
 
-                // Obter dados da conta associada
-                // const conta = await fetchDataContaPorId(funcionario.conta.idTitular);
+                abrirModal(false, false);
 
-                // // Obter dados da cidade associada
-                // const cidade = await fetchDataCidadePorId(funcionario.cidade.idCidade);
-
-                // // Obter dados do produto associado
-                // const produto = await fetchDataProdutoPorId(funcionario.produto.idProduto);
-
-                // Abre o modal de detalhes
-                abrirModal(false);
-
-                // Preenche os campos do modal com as informações
                 document.getElementById("nomeFuncionario").value = funcionario.nome;
                 document.getElementById("cargoFuncionario").value = funcionario.cargo;
                 document.getElementById("salarioFuncionario").value = funcionario.salario;
 
-                if (funcionario.conta){
+                if (funcionario.conta) {
                     document.getElementById("nomeTitular").value = funcionario.conta?.nomeTitular;
                     document.getElementById("saldo").value = funcionario.conta?.saldo;
                     document.getElementById("agencia").value = funcionario.conta?.agencia;
                 }
 
-                if (funcionario.cidade){
+                if (funcionario.cidade) {
                     document.getElementById("cidade").value = funcionario.cidade?.nomeCidade;
                     document.getElementById("estado").value = funcionario.cidade?.estado;
                     document.getElementById("pais").value = funcionario.cidade?.pais;
                     document.getElementById("populacao").value = funcionario.cidade?.populacao;
-
                 }
-               
-                if(funcionario.produto){
+
+                if (funcionario.produto) {
                     document.getElementById("descricaoProduto").value = funcionario.produto?.descricao;
                     document.getElementById("marca").value = funcionario.produto?.marca;
                     document.getElementById("preco").value = funcionario.produto?.preco;
-
                 }
 
+                const botaoDeletar = document.getElementById("botao_deletar");
+                botaoDeletar.onclick = () => confirmarExclusaoFuncionario(id);
+
+                const botaoAlterar = document.getElementById("botao_alterar");
+                botaoAlterar.onclick = () => alterarInfosFunc(id);
+                
             } catch (error) {
                 console.error("Erro ao obter detalhes do funcionário:", error);
             }
+
+
         }
 
-async function fetchDataContaPorId(contaId) {
-    try {
-        const response = await fetch(`/api/Contas/${contaId}`);
-        if (!response.ok) {
-            console.error(`Conta com ID ${contaId} não encontrada`);
-            return null;
-        }
 
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Erro ao obter dados da Conta com ID ${contaId}:`, error);
-        return null;
-    }
-}
-
-async function fetchDataCidadePorId(cidadeId) {
-    try {
-        const response = await fetch(`/api/Cidades/${cidadeId}`);
-        if (!response.ok) {
-            console.error(`Cidade com ID ${cidadeId} não encontrada`);
-            return null;
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Erro ao obter dados da Cidade com ID ${cidadeId}:`, error);
-        return null;
-    }
-}
-
-async function fetchDataProdutoPorId(produtoId) {
-    try {
-        const response = await fetch(`/api/Produtos/${produtoId}`);
-        if (!response.ok) {
-            console.error(`Produto com ID ${produtoId} não encontrado`);
-            return null;
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Erro ao obter dados do Produto com ID ${produtoId}:`, error);
-        return null;
-    }
-}
-            function fecharModal() {
+        function fecharModal() {
                 const modalCadastroProduto = document.getElementById("modalCadastroProduto");
                 modalCadastroProduto.style.display = "none";
                 document.body.classList.remove("modal-open");
@@ -346,8 +321,9 @@ async function fetchDataProdutoPorId(produtoId) {
 
             }
 
-            function abrirModal(isEditMode) {
+        function abrirModal(isEditMode, alterarModo) {
                 const modalCadastroProduto = document.getElementById("modalCadastroProduto");
+                const botaoSalvar = document.getElementById("botao_salvar");
 
                 // Adiciona verificação para abrir o modal apenas se não estiver visível
                 if (modalCadastroProduto.style.display !== "block") {
@@ -362,18 +338,46 @@ async function fetchDataProdutoPorId(produtoId) {
 
                     const botaoSalvar = document.getElementById("botao_salvar");
                     botaoSalvar.style.display = "none";
+
+                    const botaoAlterar = document.getElementById("botao_alterar");
+                    botaoAlterar.style.display = "block";
+
+                    const botaoSalvarAlteracoes = document.getElementById("salvar_alteracoes");
+                    botaoSalvarAlteracoes.style.display = "none";
+
+                    const botaoDeletar = document.getElementById("botao_deletar");
+                    botaoDeletar.style.display = "block";
                 } else {
                     // Se estiver em modo de edição, habilita os campos e mostra o botão de salvar
                     const inputs = document.querySelectorAll("#modalCadastroProduto input");
                     inputs.forEach(input => (input.disabled = false));
 
-                    // Show the save button
                     const botaoSalvar = document.getElementById("botao_salvar");
                     botaoSalvar.style.display = "block";
+
+                    const botaoSalvarAlteracoes = document.getElementById("salvar_alteracoes");
+                    botaoSalvarAlteracoes.style.display = "none";
+
+                    const botaoAlterar = document.getElementById("botao_alterar");
+                    botaoAlterar.style.display = "none";
+
+                    const botaoDeletar = document.getElementById("botao_deletar");
+                    botaoDeletar.style.display = "none";
+
+                    if (alterarModo) {
+                        const botaoSalvar = document.getElementById("botao_salvar");
+                        botaoSalvar.style.display = "none";
+
+                        const botaoSalvarAlteracoes = document.getElementById("salvar_alteracoes");
+                        botaoSalvarAlteracoes.style.display = "block";
+
+                        const botaoAlterar = document.getElementById("botao_alterar");
+                        botaoAlterar.style.display = "none";
+                    }
                 }
 
                 // Limpa os campos do modal apenas se estiver no modo de cadastro
-                if (!isEditMode) {
+                if (!isEditMode && !alterarModo) {
                     const inputs = document.querySelectorAll("#modalCadastroProduto input");
                     inputs.forEach(input => (input.value = ""));
                 }
@@ -384,7 +388,123 @@ async function fetchDataProdutoPorId(produtoId) {
                 fetchDataProduto();
             }
 
-            function salvarInfos() {
+            function alterarInfosFunc(id) {
+                abrirModal(true, true);
+                console.log('chamei alterarinfos')
+
+                const botaoSalvarAlteracoes = document.getElementById("salvar_alteracoes");
+
+                botaoSalvarAlteracoes.addEventListener("click", async () => {
+                    const nomeFuncionario = document.getElementById("nomeFuncionario").value;
+                    const cargoFuncionario = document.getElementById("cargoFuncionario").value;
+                    const salarioFuncionario = parseFloat(document.getElementById("salarioFuncionario").value);
+
+                    const nomeTitular = document.getElementById("nomeTitular").value;
+                    const saldo = parseFloat(document.getElementById("saldo").value);
+                    const agencia = parseInt(document.getElementById("agencia").value);
+
+                    const cidade = document.getElementById("cidade").value;
+                    const estado = document.getElementById("estado").value;
+                    const pais = document.getElementById("pais").value;
+                    const populacao = parseFloat(document.getElementById("populacao").value);
+
+                    const descricaoProduto = document.getElementById("descricaoProduto").value;
+                    const marca = document.getElementById("marca").value;
+                    const preco = parseFloat(document.getElementById("preco").value);
+
+                    try {
+                        const response = await fetch(`/api/Funcionarios/${id}`);
+                        if (!response.ok) {
+                            console.error("Funcionário não encontrado");
+                            return;
+                        }
+                        const funcionario = await response.json();
+
+                        const contaId = funcionario.conta?.idTitular;
+                        const cidadeId = funcionario.cidade?.idCidade;
+                        const produtoId = funcionario.produto?.idProduto;
+
+                        const putPromises = [
+                            fetch(`/api/Contas/${contaId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    nomeTitular: nomeTitular,
+                                    saldo: saldo,
+                                    agencia: agencia,
+                                }),
+                            }),
+
+                            fetch(`/api/Cidades/${cidadeId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    nomeCidade: cidade,
+                                    estado: estado,
+                                    pais: pais,
+                                    populacao: populacao,
+                                }),
+                            }),
+
+                            fetch(`/api/Produtos/${produtoId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    descricao: descricaoProduto,
+                                    marca: marca,
+                                    preco: preco,
+                                }),
+                            }),
+
+                            fetch(`/api/Funcionarios/${id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    nome: nomeFuncionario,
+                                    cargo: cargoFuncionario,
+                                    salario: salarioFuncionario,
+                                    contaId: contaId,
+                                    cidadeId: cidadeId,
+                                    produtoId: produtoId,
+                                }),
+                            }),
+                        ];
+
+                        const responses = await Promise.all(putPromises);
+                        const success = responses.every(response => response.ok);
+
+                        if (success) {
+                            console.log('Todas as atualizações foram bem-sucedidas.');
+                            fecharModal();
+                            fetchDataFuncionarios();
+                            fetchDataConta();
+                            fetchDataCidade();
+                            fetchDataProduto();
+                        } else {
+                            console.error('Algumas das atualizações falharam.');
+                        }
+                    } catch (error) {
+                        console.error('Erro ao realizar as requisições PUT:', error);
+                    }
+                });
+            }
+
+        function confirmarExclusaoFuncionario(idFuncionario) {
+            const confirmacao = window.confirm("Tem certeza que deseja excluir este funcionário?");
+            if (confirmacao) {
+                excluirFuncionarioPorId(idFuncionario);
+            }
+        }
+
+            async function salvarInfos() {
                 const nomeFuncionario = document.getElementById("nomeFuncionario").value;
                 const cargoFuncionario = document.getElementById("cargoFuncionario").value;
                 const salarioFuncionario = parseFloat(document.getElementById("salarioFuncionario").value);
@@ -452,62 +572,49 @@ async function fetchDataProdutoPorId(produtoId) {
                         }),
                     }),
                 ];
-                let funcionario = {
-                nome: nomeFuncionario,
-                cargo: cargoFuncionario,
-                salario: salarioFuncionario
-                };
-                alterarFuncionario(postPromises, funcionario);
-                
+
+                try {
+                    const responses = await Promise.all(postPromises);
+
+                    const [contasResponse, cidadesResponse, produtosResponse, funcionariosResponse] = responses;
+
+                    const contaId = (await contasResponse.json()).idTitular;
+                    const cidadeId = (await cidadesResponse.json()).idCidade;
+                    const produtoId = (await produtosResponse.json()).idProduto;
+
+                    const funcionarioData = {
+                        nome: nomeFuncionario,
+                        cargo: cargoFuncionario,
+                        salario: salarioFuncionario,
+                        contaId: contaId,
+                        cidadeId: cidadeId,
+                        produtoId: produtoId,
+                    };
+
+                    const funcionarioResponse = await funcionariosResponse.json();
+                    const funcionarioId = funcionarioResponse.id;
+
+                    funcionarioData.funcionarioId = funcionarioId;
+
+                    await fetch(`/api/Funcionarios/${funcionarioId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(funcionarioData),
+                    });
+
+                    console.log('Todas as APIs foram atualizadas com sucesso.');
+                    fecharModal();
+                    fetchDataFuncionarios();
+                    fetchDataConta();
+                    fetchDataCidade();
+                    fetchDataProduto();
+                } catch (error) {
+                    console.error('Erro ao realizar as requisições POST/PUT:', error);
+                }
             }
-            async function alterarFuncionario (postPromises, funcionario) { 
-                Promise.all(postPromises)
-                            .then(async responses => {
-                                // As respostas de todas as chamadas POST estarão disponíveis aqui
-                                // Você pode extrair os IDs ou outras informações necessárias para o PUT
 
-                                const [contasResponse, cidadesResponse, produtosResponse, funcionariosResponse] = responses;
-
-                                // Exemplo de como obter o ID da entidade criada
-                                const funcionarioId = (await funcionariosResponse.json()).id;
-                                const contaId = (await contasResponse.json()).idTitular;
-                                const cidadeId = (await cidadesResponse.json()).idCidade;
-                                const produtoId = (await produtosResponse.json()).idProduto;
-                    
-                                console.log(contaId);
-                                console.log(cidadeId);
-                                console.log(produtoId);
-                                console.log(funcionarioId);
-
-                            // Construir o objeto de dados para a atualização do funcionário
-                            const funcionarioData = Object.assign( {
-
-                                contaId: contaId,
-                                cidadeId: cidadeId,
-                                produtoId: produtoId,
-                            }, funcionario
-                            );
-                            console.log(funcionario);        
-                            // Enviar solicitação PUT para atualizar o funcionário
-                            return await fetch(`/api/Funcionarios/${funcionarioId}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(funcionarioData),
-                            }
-                            );
-                        })
-                        .then(() => {
-                            console.log('Todas as APIs foram atualizadas com sucesso.');
-                            fecharModal();
-                            fetchDataFuncionarios();
-                            fetchDataConta();
-                            fetchDataCidade();
-                            fetchDataProduto();
-                        })
-                        .catch(error => console.error('Erro ao realizar as requisições POST/PUT:', error));
-        }
         document.addEventListener("DOMContentLoaded", function () {
             console.log('DOMContentLoaded event triggered'); // Adicione este console.log
 
@@ -527,6 +634,10 @@ async function fetchDataProdutoPorId(produtoId) {
                     fecharModal();
                 }
             });
+
+            const botaoSalvar = document.getElementById("botao_salvar");
+
+            botaoSalvar.addEventListener("click", salvarInfos); 
 
         });
     </script>

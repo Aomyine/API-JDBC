@@ -31,17 +31,23 @@ public class ContaBancariaController {
 		return createdCon;
 	}
 
-    @PutMapping("/api/Contas/{idTitular}")
+	@PutMapping("/api/Contas/{idTitular}")
 	Optional<ContaBancaria> updateContaBancaria(@RequestBody ContaBancaria contaReq, @PathVariable long idTitular) {
 		Optional<ContaBancaria> opt = contaBancariaRepo.findById(idTitular);
 		if (opt.isPresent()) {
-			if (contaReq.getIdTitular() == idTitular) {
-				contaBancariaRepo.save(contaReq);
+			ContaBancaria contaExistente = opt.get();
+			if (contaExistente.getIdTitular() == idTitular) {
+				// Atualize os campos relevantes da contaExistente com base nos campos de contaReq
+				contaExistente.setNomeTitular(contaReq.getNomeTitular());
+				contaExistente.setSaldo(contaReq.getSaldo());
+				contaExistente.setAgencia(contaReq.getAgencia());
+				
+				contaBancariaRepo.save(contaExistente);
 				return opt;
 			}
 		}
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados da conta com id " + idTitular);
-	}	
+	}
 
 	@DeleteMapping("/api/Contas/{id}")
 	void deleteConta(@PathVariable long id) {

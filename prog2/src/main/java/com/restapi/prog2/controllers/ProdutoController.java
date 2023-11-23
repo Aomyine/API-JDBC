@@ -32,16 +32,21 @@ public class ProdutoController {
 	}
 
     @PutMapping("/api/Produtos/{idProduto}")
-	Optional<Produto> updateProduto(@RequestBody Produto produtoReq, @PathVariable long idProduto) {
-		Optional<Produto> opt = produtoRepo.findById(idProduto);
-		if (opt.isPresent()) {
-			if (produtoReq.getIdProduto() == idProduto) {
-				produtoRepo.save(produtoReq);
-				return opt;
-			}
-		}
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados de produto com id " + idProduto);
-	}	
+    Optional<Produto> updateProduto(@RequestBody Produto produtoReq, @PathVariable long idProduto) {
+        Optional<Produto> opt = produtoRepo.findById(idProduto);
+        if (opt.isPresent()) {
+            Produto produtoExistente = opt.get();
+            if (produtoExistente.getIdProduto() == idProduto) {
+                // Atualize os campos relevantes do produtoExistente com base nos campos de produtoReq
+                produtoExistente.setDescricao(produtoReq.getDescricao());
+                produtoExistente.setPreco(produtoReq.getPreco());
+
+                produtoRepo.save(produtoExistente);
+                return opt;
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados do produto com id " + idProduto);
+    }
 
 	@DeleteMapping("/api/Produtos/{id}")
 	void deleteProduto(@PathVariable long id) {

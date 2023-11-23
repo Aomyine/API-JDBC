@@ -46,25 +46,37 @@ public class FuncionarioController {
 	
 	@PutMapping("/api/Funcionarios/{id}")
 	Optional<Funcionario> updateFuncionario(@RequestBody FuncionarioDTO funcionarioRequest, @PathVariable long id) {
-		Optional<Funcionario> opt = funcionarioRepo.findById(id);
-		if (opt.isPresent()) {
-				Funcionario existingFuncionario = opt.get();
-				existingFuncionario.setNome(funcionarioRequest.getNome());
-				existingFuncionario.setCargo(funcionarioRequest.getCargo());
-				existingFuncionario.setSalario(funcionarioRequest.getSalario());
+    Optional<Funcionario> opt = funcionarioRepo.findById(id);
+	System.out.println("ID recebido: " + id);
+    if (opt.isPresent()) {
+        Funcionario existingFuncionario = opt.get();
+        existingFuncionario.setNome(funcionarioRequest.getNome());
+        existingFuncionario.setCargo(funcionarioRequest.getCargo());
+        existingFuncionario.setSalario(funcionarioRequest.getSalario());
 
-				Optional<ContaBancaria> optcb = contaBancariaRepo.findById(funcionarioRequest.getContaId());
-				Optional<Cidade> optc = cidadeRepo.findById(funcionarioRequest.getCidadeId());
-				Optional<Produto> optp = produtoRepo.findById(funcionarioRequest.getProdutoId());
-				existingFuncionario.setCidade(optc.get());
-				existingFuncionario.setProduto(optp.get());
-				existingFuncionario.setConta(optcb.get());
-				
-				funcionarioRepo.save(existingFuncionario);
-				return opt;
-			}
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados do funcionário com id " + id);	
-	}	
+        // Certifique-se de verificar a presença dos Optionals antes de chamar get()
+        Optional<ContaBancaria> optcb = contaBancariaRepo.findById(funcionarioRequest.getContaId());
+        Optional<Cidade> optc = cidadeRepo.findById(funcionarioRequest.getCidadeId());
+        Optional<Produto> optp = produtoRepo.findById(funcionarioRequest.getProdutoId());
+
+        if (optc.isPresent() && optp.isPresent() && optcb.isPresent()) {
+            existingFuncionario.setCidade(optc.get());
+            existingFuncionario.setProduto(optp.get());
+            existingFuncionario.setConta(optcb.get());
+
+            funcionarioRepo.save(existingFuncionario);
+			System.out.println("Existing Funcionário: " + existingFuncionario);
+			System.out.println("Conta Bancária: " + optcb);
+			System.out.println("Cidade: " + optc);
+			System.out.println("Produto: " + optp);
+            return opt;
+		
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro ao alterar dados do funcionário com id " + id);
+        }
+    }
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionário com id " + id + " não encontrado");
+}
 	
 	@DeleteMapping(value = "/api/Funcionarios/{id}")
 	void deleteFuncionario(@PathVariable long id) {
