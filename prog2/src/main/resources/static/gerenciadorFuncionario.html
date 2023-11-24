@@ -131,6 +131,11 @@
         let isEditMode = false;
         let modoAlterar = false;
 
+        function atualizarFuncionarioEditado(id) {
+            funcEditado = id;
+            console.log(funcEditado)
+        }
+
         function pesquisarFuncionarios() {
             const nome = document.getElementById("nome").value.toLowerCase();
             const id = document.getElementById("id").value.toLowerCase();
@@ -263,6 +268,7 @@
 
         async function abrirModalDetalhes(id) {
             console.log("modal detalhes chamado");
+            atualizarFuncionarioEditado(id);
 
             try {
                 const response = await fetch(`/api/Funcionarios/${id}`);
@@ -301,8 +307,8 @@
                 botaoDeletar.onclick = () => confirmarExclusaoFuncionario(id);
 
                 const botaoAlterar = document.getElementById("botao_alterar");
-                botaoAlterar.onclick = () => alterarInfosFunc(id);
-                
+                botaoAlterar.onclick = () => alterarInfosFunc(funcEditado);
+
             } catch (error) {
                 console.error("Erro ao obter detalhes do funcionário:", error);
             }
@@ -391,110 +397,6 @@
             function alterarInfosFunc(id) {
                 abrirModal(true, true);
                 console.log('chamei alterarinfos')
-
-                const botaoSalvarAlteracoes = document.getElementById("salvar_alteracoes");
-
-                botaoSalvarAlteracoes.addEventListener("click", async () => {
-                    const nomeFuncionario = document.getElementById("nomeFuncionario").value;
-                    const cargoFuncionario = document.getElementById("cargoFuncionario").value;
-                    const salarioFuncionario = parseFloat(document.getElementById("salarioFuncionario").value);
-
-                    const nomeTitular = document.getElementById("nomeTitular").value;
-                    const saldo = parseFloat(document.getElementById("saldo").value);
-                    const agencia = parseInt(document.getElementById("agencia").value);
-
-                    const cidade = document.getElementById("cidade").value;
-                    const estado = document.getElementById("estado").value;
-                    const pais = document.getElementById("pais").value;
-                    const populacao = parseFloat(document.getElementById("populacao").value);
-
-                    const descricaoProduto = document.getElementById("descricaoProduto").value;
-                    const marca = document.getElementById("marca").value;
-                    const preco = parseFloat(document.getElementById("preco").value);
-
-                    try {
-                        const response = await fetch(`/api/Funcionarios/${id}`);
-                        if (!response.ok) {
-                            console.error("Funcionário não encontrado");
-                            return;
-                        }
-                        const funcionario = await response.json();
-
-                        const contaId = funcionario.conta?.idTitular;
-                        const cidadeId = funcionario.cidade?.idCidade;
-                        const produtoId = funcionario.produto?.idProduto;
-
-                        const putPromises = [
-                            fetch(`/api/Contas/${contaId}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    nomeTitular: nomeTitular,
-                                    saldo: saldo,
-                                    agencia: agencia,
-                                }),
-                            }),
-
-                            fetch(`/api/Cidades/${cidadeId}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    nomeCidade: cidade,
-                                    estado: estado,
-                                    pais: pais,
-                                    populacao: populacao,
-                                }),
-                            }),
-
-                            fetch(`/api/Produtos/${produtoId}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    descricao: descricaoProduto,
-                                    marca: marca,
-                                    preco: preco,
-                                }),
-                            }),
-
-                            fetch(`/api/Funcionarios/${id}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    nome: nomeFuncionario,
-                                    cargo: cargoFuncionario,
-                                    salario: salarioFuncionario,
-                                    contaId: contaId,
-                                    cidadeId: cidadeId,
-                                    produtoId: produtoId,
-                                }),
-                            }),
-                        ];
-
-                        const responses = await Promise.all(putPromises);
-                        const success = responses.every(response => response.ok);
-
-                        if (success) {
-                            console.log('Todas as atualizações foram bem-sucedidas.');
-                            fecharModal();
-                            fetchDataFuncionarios();
-                            fetchDataConta();
-                            fetchDataCidade();
-                            fetchDataProduto();
-                        } else {
-                            console.error('Algumas das atualizações falharam.');
-                        }
-                    } catch (error) {
-                        console.error('Erro ao realizar as requisições PUT:', error);
-                    }
-                });
             }
 
         function confirmarExclusaoFuncionario(idFuncionario) {
@@ -616,13 +518,6 @@
             }
 
         document.addEventListener("DOMContentLoaded", function () {
-            console.log('DOMContentLoaded event triggered'); // Adicione este console.log
-
-            fetchDataFuncionarios();
-            fetchDataConta();
-            fetchDataCidade();
-            fetchDataProduto();
-
             fecharModal()
             document.getElementById("close_button").addEventListener("click", fecharModal);
 
@@ -634,12 +529,125 @@
                     fecharModal();
                 }
             });
+            console.log('DOMContentLoaded event triggered'); // Adicione este console.log
+            
+
+            fetchDataFuncionarios();
+            fetchDataConta();
+            fetchDataCidade();
+            fetchDataProduto();
 
             const botaoSalvar = document.getElementById("botao_salvar");
-
             botaoSalvar.addEventListener("click", salvarInfos); 
+            const botaoSalvarAlteracoes = document.getElementById("salvar_alteracoes");
 
-        });
+            botaoSalvarAlteracoes.addEventListener("click", async function () {
+
+                    console.log('chamei o get', funcEditado);
+                    const nomeFuncionario = document.getElementById("nomeFuncionario").value;
+                    const cargoFuncionario = document.getElementById("cargoFuncionario").value;
+                    const salarioFuncionario = parseFloat(document.getElementById("salarioFuncionario").value);
+
+                    const nomeTitular = document.getElementById("nomeTitular").value;
+                    const saldo = parseFloat(document.getElementById("saldo").value);
+                    const agencia = parseInt(document.getElementById("agencia").value);
+
+                    const cidade = document.getElementById("cidade").value;
+                    const estado = document.getElementById("estado").value;
+                    const pais = document.getElementById("pais").value;
+                    const populacao = parseFloat(document.getElementById("populacao").value);
+
+                    const descricaoProduto = document.getElementById("descricaoProduto").value;
+                    const marca = document.getElementById("marca").value;
+                    const preco = parseFloat(document.getElementById("preco").value);
+
+                    try {
+                        console.log('chamei o get dentro do try', funcEditado);
+                        const response = await fetch(`/api/Funcionarios/${funcEditado}`);
+                        console.log('get do id: ', funcEditado)
+                        if (!response.ok) {
+                            console.error("Funcionário não encontrado");
+                            return;
+                        }
+                        const funcionario = await response.json();
+
+                        const contaId = funcionario.conta?.idTitular;
+                        const cidadeId = funcionario.cidade?.idCidade;
+                        const produtoId = funcionario.produto?.idProduto;
+
+                        const putPromises = [
+                            fetch(`/api/Contas/${contaId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    nomeTitular: nomeTitular,
+                                    saldo: saldo,
+                                    agencia: agencia,
+                                }),
+                            }),
+
+                            fetch(`/api/Cidades/${cidadeId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    nomeCidade: cidade,
+                                    estado: estado,
+                                    pais: pais,
+                                    populacao: populacao,
+                                }),
+                            }),
+
+                            fetch(`/api/Produtos/${produtoId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    descricao: descricaoProduto,
+                                    marca: marca,
+                                    preco: preco,
+                                }),
+                            }),
+
+                            fetch(`/api/Funcionarios/${funcEditado}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    nome: nomeFuncionario,
+                                    cargo: cargoFuncionario,
+                                    salario: salarioFuncionario,
+                                    contaId: contaId,
+                                    cidadeId: cidadeId,
+                                    produtoId: produtoId,
+                                }),
+                            }),
+                        ];
+
+                        const responses = await Promise.all(putPromises);
+                        const success = responses.every(response => response.ok);
+
+                        if (success) {
+                            console.log('Todas as atualizações foram bem-sucedidas.');
+                            fecharModal();
+                            fetchDataFuncionarios();
+                            fetchDataConta();
+                            fetchDataCidade();
+                            fetchDataProduto();
+                        } else {
+                            console.error('Algumas das atualizações falharam.');
+                        }
+                    } catch (error) {
+                        console.error('Erro ao realizar as requisições PUT:', error);
+                    }
+                }
+
+                )});
     </script>
 </body>
 
